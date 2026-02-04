@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avian Influenza Field Investigation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: #1a1a2e;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* Location backgrounds */
+        .location {
+            display: none;
+            min-height: 100vh;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        
+        .location.active {
+            display: block;
+            animation: fadeIn 0.8s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .location-overlay {
+            background: rgba(255, 255, 255, 0.95);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        /* Office background */
+        .office-bg {
+            background: linear-gradient(135deg, #2d3561 0%, #1e2442 100%);
+        }
+        
+        /* Hospital background */
+        .hospital-bg {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+        }
+        
+        /* Laboratory background */
+        .lab-bg {
+            background: linear-gradient(135deg, #50c878 0%, #3d9a5c 100%);
+        }
+        
+        /* Meeting room background */
+        .meeting-bg {
+            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+        }
+        
+        /* Header with location indicator */
+        .location-header {
+            background: rgba(45, 53, 97, 0.95);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px 15px 0 0;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .location-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .location-icon {
+            font-size: 36px;
+        }
+        
+        .location-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-left: 51px;
+        }
+        
+        /* Character dialogue boxes */
+        .character-dialogue {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+            position: relative;
+        }
+        
+        .character-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .character-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+        }
+        
+        .character-name {
+            font-weight: bold;
+            font-size: 18px;
+            color: #2d3561;
+        }
+        
+        .character-role {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .dialogue-text {
+            font-size: 16px;
+            color: #333;
+            line-height: 1.8;
+        }
+        
+        /* Interactive map */
+        .district-map {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: #e8f4f8;
+            border-radius: 10px;
+            border: 2px solid #4a90e2;
+            overflow: hidden;
+        }
+        
+        .town-marker {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #e74c3c;
+            border-radius: 50%;
+            border: 3px solid white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+        
+        .town-marker:hover {
+            transform: scale(1.2);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+        }
+        
+        .town-label {
+            position: absolute;
+            background: rgba(255,255,255,0.95);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        
+        /* Animated epidemic curve */
+        .epidemic-curve {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .curve-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2d3561;
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            position: relative;
+            border-left: 2px solid #333;
+            border-bottom: 2px solid #333;
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            padding: 20px 10px 30px 40px;
+        }
+        
+        .bar {
+            flex: 1;
+            background: linear-gradient(to top, #667eea 0%, #764ba2 100%);
+            border-radius: 5px 5px 0 0;
+            position: relative;
+            transition: height 0.5s ease;
+            min-width: 30px;
+        }
+        
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            white-space: nowrap;
+        }
+        
+        .bar-value {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: bold;
+            color: #2d3561;
+        }
+        
+        /* Content cards */
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .card-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2d3561;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Question boxes */
+        .question-box {
+            background: #f8f9fa;
+            border-left: 5px solid #e67e22;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .question-number {
+            font-weight: bold;
+            color: #e67e22;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .question-text {
+            font-size: 16px;
+            color: #2d3561;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .answer-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        textarea.answer-input {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        /* Data tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .data-table th {
+            background: #2d3561;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .data-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        /* Error highlighting for data quality */
+        .data-error {
+            background: #ffe6e6 !important;
+            color: #c0392b;
+            font-weight: bold;
+        }
+        
+        /* Info boxes */
+        .info-box {
+            background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .info-box-title {
+            font-weight: bold;
+            color: #d97706;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        /* Reference materials */
+        .reference-panel {
+            background: #e8f4f8;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #4a90e2;
+        }
+        
+        .reference-toggle {
+            cursor: pointer;
+            font-weight: bold;
+            color: #2d3561;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            user-select: none;
+        }
+        
+        .reference-content {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ccc;
+        }
+        
+        .reference-content.open {
+            display: block;
+        }
+        
+        /* Navigation buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 40px;
+            padding: 20px 0;
+        }
+        
+        .btn {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .btn-secondary:hover {
+            background: #f8f9fa;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        /* Progress bar */
+        .progress-container {
+            background: rgba(255,255,255,0.9);
+            padding: 15px 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-text {
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+        }
+        
+        /* Patient file cards */
+        .patient-file {
+            background: white;
+            border: 2px solid #4a90e2;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .patient-header {
+            background: #4a90e2;
+            color: white;
+            padding: 10px 15px;
+            margin: -20px -20px 15px -20px;
+            border-radius: 8px 8px 0 0;
+            font-weight: bold;
+        }
+        
+        .patient-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .info-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .info-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .info-value {
+            font-size: 15px;
+            color: #2d3561;
+            margin-top: 5px;
+        }
+        
+        /* Learning objectives */
+        .objectives-list {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .objectives-list li {
+            margin: 10px 0;
+            padding-left: 10px;
+            position: relative;
+        }
+        
+        .objectives-list li:before {
+            content: "✓";
+            color: #10b981;
+            font-weight: bold;
+            position: absolute;
+            left: -15px;
+        }
+        
+        /* Start screen */
+        .start-screen {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 20px;
+            margin: 40px auto;
+            max-width: 800px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .start-screen h1 {
+            font-size: 36px;
+            color: #2d3561;
+            margin-bottom: 20px;
+        }
+        
+        .start-screen .subtitle {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .start-btn {
+            font-size: 20px;
+            padding: 20px 50px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Progress Bar -->
+        <div class="progress-container" id="progressContainer" style="display: none;">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div class="progress-text" id="progressText">Investigation Progress: 0%</div>
+        </div>
+        
+        <!-- Start Screen -->
+        <div class="location office-bg active" id="start">
+            <div class="location-overlay">
+                <div class="start-screen">
+                    <div style="font-size: 80px; margin-bottom: 20px;">🦠</div>
+                    <h1>Avian Influenza Field Investigation</h1>
+                    <p class="subtitle">District D, Province A, Country Z</p>
+                    
+                    <div class="objectives-list" style="text-align: left; margin: 40px auto; max-width: 600px;">
+                        <h3 style="color: #2d3561; margin-bottom: 15px;">Your Mission</h3>
+                        <p style="margin-bottom: 20px;">As a new surveillance officer, you will:</p>
+                        <ul>
+                            <li>Review influenza surveillance data</li>
+                            <li>Investigate suspected avian influenza cases</li>
+                            <li>Clean and analyze epidemiological data</li>
+                            <li>Collaborate with veterinary colleagues (One Health)</li>
+                            <li>Present findings to the District Chief Medical Officer</li>
+                        </ul>
+                    </div>
+                    
+                    <p style="margin: 30px 0; color: #666; font-size: 16px;">
+                        <strong>Date:</strong> Monday, March 4, 2024<br>
+                        <strong>Time:</strong> 08:00 AM<br>
+                        <strong>Location:</strong> District D Public Health Office
+                    </p>
+                    
+                    <button class="btn btn-primary start-btn" onclick="startInvestigation()">
+                        Begin Investigation →
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Location 1: Your Office - Part A -->
+        <div class="location office-bg" id="location1">
+            <div class="location-overlay">
+                <div class="location-header">
+                    <div class="location-title">
+                        <span class="location-icon">🏢</span>
+                        <span>Your Office - District D Public Health Department</span>
+                    </div>
+                    <div class="location-subtitle">Monday, March 4, 2024 - 08:30 AM</div>
+                </div>
+                
+                <div class="content-card">
+                    <div class="character-dialogue">
+                        <div class="character-info">
+                            <div class="character-avatar">👤</div>
+                            <div>
+                                <div class="character-name">Your Supervisor</div>
+                                <div class="character-role">Senior Surveillance Officer</div>
+                            </div>
+                        </div>
+                        <div class="dialogue-text">
+                            "Welcome to your first day! Before we dive in, I'd like to review some basics with you. 
+                            District D has a population of 85,000 people. We have one hospital - the General Hospital - 
+                            and three health clinics: the District Clinic, the Children's Clinic, and the General Clinic. 
+                            Let's start by reviewing what you know about surveillance."
+                        </div>
+                    </div>
+                    
+                    <div class="question-box">
+                        <div class="question-number">Question 1</div>
+                        <div class="question-text">List the steps of the surveillance cycle.</div>
+                        <textarea class="answer-input" id="q1" placeholder="Type your answer here..."></textarea>
+                    </div>
+                    
+                    <div class="reference-panel">
+                        <div class="reference-toggle" onclick="toggleReference('ref1')">
+                            📚 Reference: Surveillance Cycle <span style="margin-left: auto;">▼</span>
+                        </div>
+                        <div class="reference-content" id="ref1">
+                            <p>The surveillance cycle is a continuous process that includes:</p>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li>Detection and diagnosis</li>
+                                <li>Data collection</li>
+                                <li>Compilation and analysis</li>
+                                <li>Interpretation</li>
+                                <li>Communication</li>
+                                <li>Action</li>
+                            </ul>
+                            <p style="margin-top: 10px;"><em>Monitoring should be continuous, with periodic evaluation.</em></p>
+                        </div>
+                    </div>
+                    
+                    <div class="question-box">
+                        <div class="question-number">Question 2a</div>
+                        <div class="question-text">Why conduct surveillance at the local/district level? (What is the reason for collecting surveillance data?)</div>
+                        <textarea class="answer-input" id="q2a" placeholder="Type your answer here..."></textarea>
+                    </div>
+                    
+                    <div class="question-box">
+                        <div class="question-number">Question 2b</div>
+                        <div class="question-text">Why conduct surveillance of animal populations? (What is the rationale for sharing this surveillance data with the human sectors?)</div>
+                        <textarea class="answer-input" id="q2b" placeholder="Type your answer here..."></textarea>
+                    </div>
+                    
+                    <div class="question-box">
+                        <div class="question-number">Question 3</div>
+                        <div class="question-text">Which of the steps in the surveillance cycle should be performed at the district level?</div>
+                        <input type="text" class="answer-input" id="q3" placeholder="Type your answer here...">
+                    </div>
+                </div>
+                
+                <div class="content-card">
+                    <div class="character-dialogue">
+                        <div class="character-info">
+                            <div class="character-avatar">👤</div>
+                            <div>
+                                <div class="character-name">Your Supervisor</div>
+                                <div class="character-role">Senior Surveillance Officer</div>
+                            </div>
+                        </div>
+                        <div class="dialogue-text">
+                            "Good! Now let's look at some provincial data. I've pulled up the influenza data for Country Z 
+                            over the past several years. Since you're focusing on influenza and interested in zoonotic diseases, 
+                            you should review the avian influenza fact sheet as well."
+                        </div>
+                    </div>
+                    
+                    <div class="reference-panel">
+                        <div class="reference-toggle" onclick="toggleReference('ref2')">
+                            📋 Avian Influenza Fact Sheet <span style="margin-left: auto;">▼</span>
+                        </div>
+                        <div class="reference-content" id="ref2">
+                            <h4 style="color: #2d3561; margin-bottom: 10px;">Key Facts About Avian Influenza</h4>
+                            <p><strong>What is it?</strong> Type A influenza viruses that typically infect birds but can also infect humans and other animals.</p>
+                            
+                            <p style="margin-top: 10px;"><strong>Transmission to Humans:</strong> Usually through direct contact with infected birds. Human-to-human spread is rare.</p>
+                            
+                            <p style="margin-top: 10px;"><strong>Incubation Period:</strong> Usually 3 to 5 days</p>
+                            
+                            <p style="margin-top: 10px;"><strong>Symptoms in Humans:</strong> Fever (≥38°C), cough, difficulty breathing, and potentially severe complications</p>
+                            
+                            <p style="margin-top: 10px;"><strong>Case Definition - Confirmed Case:</strong> Probable case (recent exposure + clinical criteria) AND positive confirmatory laboratory test (RT-PCR)</p>
+                            
+                            <p style="margin-top: 10px;"><strong>In Poultry:</strong> Highly pathogenic strains (HPAI) spread quickly and cause high mortality. Control involves depopulation (culling) of infected flocks.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="previousLocation()" disabled>← Previous</button>
+                    <button class="btn btn-primary" onclick="nextLocation()">Continue Investigation →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Location 2: Data Review Room - Provincial Data -->
+        <div class="location office-bg" id="location2">
+            <div class="location-overlay">
+                <div class="location-header">
+                    <div class="location-title">
+                        <span class="location-icon">📊</span>
+                        <span>Data Review Room - Examining Provincial Trends</span>
+                    </div>
+                    <div class="location-subtitle">Reviewing 2019-2024 Data</div>
+                </div>
+                
+                <div class="content-card">
+                    <div class="card-title">
+                        📈 Provincial Influenza Data Analysis
+                    </div>
+                    
+                    <div class="info-box">
+                        <div class="info-box-title">Background Context</div>
+                        <p>Country Z is a major poultry producer. Historically, there have been avian influenza outbreaks on 
+                        poultry farms in several districts. Human cases have been rare and mild, but there's concern about 
+                        new virus introduction due to poultry farms located along wild bird migratory flyways.</p>
+                    </div>
+                    
+                    <p style="margin: 20px 0;">
+                        Your supervisor shows you graphs of annual influenza incidence in humans and poultry across all provinces 
+                        from 2019 to 2024. You'll use these to understand patterns and identify potential outbreaks.
+                    </p>
+                    
+                    <div class="question-box">
+                        <div class="question-number">Question 4a</div>
+                        <div class="question-text">According to the human influenza data (Figure 1 in your case materials), which province has the highest overall incidence rate of human influenza between 2019 and 2024?</div>
+                        <input type="text" class="answer-input" id="q4a" placeholder="Province name...">
+                    </div>
+                    
+                    <div class="question-box">
+                        <div class="question-number">Question 4b</div>
+                        <div class="question-text">According to the poultry data (Figure 2), which provinces may have had avian influenza outbreaks among their poultry from 2019 to 2024?</div>
+                        <textarea class="answer-input" id="q4b" placeholder="List the provinces and explain how you identified potential outbreaks..."></textarea>
+                    </div>
+                    
+                    <div class="question-box">
+                        <div class="question-number">Question 5</div>
+                        <div class="question-text">Province E had a relatively low influenza incidence rate every year except for 2023, when it experienced a sudden increase. What may have caused this increase?</div>
+                        <textarea class="answer-input" id="q5" placeholder="Type your answer here..."></textarea>
+                    </div>
+                    
+                    <div class="question-box">
+                        <div class="question-number">Question 6</div>
+                        <div class="question-text">Comparing the human and poultry data, did influenza outbreaks occur in both populations during the same years?</div>
+                        <textarea class="answer-input" id="q6" placeholder="Describe what you observe and what this might mean..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="previousLocation()">← Previous</button>
+                    <button class="btn btn-primary" onclick="nextLocation()">Review District Data →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Location 3: District Map View -->
+        <div class="location office-bg" id="location3">
+            <div class="location-overlay">
+                <div class="location-header">
+                    <div class="location-title">
+                        <span class="location-icon">🗺️</span>
+                        <span>District D Geographic Analysis</span>
+                    </div>
+                    <div class="location-subtitle">Examining Spatial Distribution of Cases</div>
+                </div>
+                
+                <div class="content-card">
+                    <div class="card-title">🏘️ Map of District D Towns</div>
+                    
+                    <div class="district-map">
+                        <p style="margin-bottom: 20px; color: #666;">
+                            Click on each town marker to see case counts. Towns with more cases are shown with larger markers.
+                        </p>
+                        <div class="map-container" id="mapContainer">
+                            <!-- Towns will be positioned here -->
+                            <div class="town-marker" style="left: 15%; top: 20%; width: 50px; height: 50px;" data-town="Zot" data-cases="7">
+                                7
+                                <div class="town-label" style="top: -30px; left: 50%; transform: translateX(-50%);">Zot</div>
+                            </div>
+                            <div class="town-marker" style="left: 45%; top: 15%; width: 50px; height: 50px;" data-town="Delta" data-cases="5">
+                                5
+                                <div class="town-label" style="top: -30px; left: 50%; transform: translateX(-50%);">Delta</div>
+                            </div>
+                            <div class="town-marker" style="left: 75%; top: 25%; width: 50px; height: 50px;" data-town="Cerra" data-cases="7">
+                                7
+                                <div class="town-label" style="top: -30px; left: 50%; transform: translateX(-50%);">Cerra</div>
+                            </div>
+                            <div class="town-marker" style="left: 25%; top: 55%; width: 48px; height: 48px;" data-town="Arlie" data-cases="6">
+                                6
+                                <div class="town-label" style="top: -30px; left: 50%; transform: translateX(-50%);">Arlie</div>
+                            </div>
+                            <div class="town-marker" style="left: 50%; top: 50%; width: 48px; height: 48px;" data-town="Bravo" data-cases="6">
+                                6
+                                <div class="town-label" style="top: -30px; left: 50%; transform: translateX(-50%);">Bravo</div>
+                            </div>
+                            <div class="town-marker" style="left: 70%; top: 60%; width: 45px; height: 45px;" data-town="Tango" data-cases="5">
+                                5
+                                <div class="town-label" style="top: -30px; left: 50%; transform: translateX(-50%);">Tango</div>
+                            </div>
+                            <div class="town-marker" style="left: 35%; top: 75%; width: 44px; height: 44px;" data-town="Uniform" data-cases="4">
+                                4
+                                <div class="town-label" style="top: -30px; left: 50%; transform: translateX(-50%);">Uniform</div>
+                            </div>
+                            <div class="town-marker" style="left: 60%; top: 80%; width: 44px; height: 44px;" data-town="Echo" data-cases="4">
+                                4
+                                <div class="town-label" style="top: -30px; left: 50%; transform: translateX(-50%);">Echo</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="content-card" style="margin-top: 20px;">
+                        <h4 style="color: #2d3561; margin-bottom: 15px;">Town Population & Case Data (2024)</h4>
+                        <table class="data-table">
+                            <tr>
+                                <th>Town</th>
+                                <th>Population</th>
+                                <th>Number of Cases</th>
+                                <th>Cases per 10,000</th>
+                            </tr>
+                            <tr><td>Arlie</td><td>8,000</td><td>6</td><td>7.5</td></tr>
+                            <tr><td>Bravo</td><td>12,000</td><td>6</td><td>5.0</td></tr>
+                            <tr><td>Cerra</td><td>18,000</td><td>7</td><td>3.9</td></tr>
+                            <tr><td>Delta</td><td>6,000</td><td>5</td><td>8.3</td></tr>
+                            <tr><td>Echo</td><td>11,000</td><td>4</td><td>3.6</td></tr>
+                            <tr><td>Tango</td><td>15,000</td><td>5</td><td>3.3</td></tr>
+                            <tr><td>Uniform</td><td>7,000</td><td>4</td><td>5.7</td></tr>
+                            <tr><td>Zot</td><td>8,000</td><td>7</td><td>8.8</td></tr>
+                            <tr style="font-weight: bold; background: #f0f0f0;">
+                                <td>Total</td><td>85,000</td><td>44</td><td>5.2</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="question-box">
+                        <div class="question-number">Question 25</div>
+                        <div class="question-text">
+                            <p><strong>a)</strong> Is influenza affecting all the towns in the district?</p>
+                            <textarea class="answer-input" id="q25a" placeholder="Type your answer here..." style="margin-bottom: 15px;"></textarea>
+                            
+                            <p><strong>b)</strong> Which town(s) is/are most affected?</p>
+                            <textarea class="answer-input" id="q25b" placeholder="Consider the cases per 10,000 rate..." style="margin-bottom: 15px;"></textarea>
+                            
+                            <p><strong>c)</strong> Which town(s) would you target for control measures?</p>
+                            <textarea class="answer-input" id="q25c" placeholder="Type your answer here..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="previousLocation()">← Previous</button>
+                    <button class="btn btn-primary" onclick="nextLocation()">Continue to Hospital →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Continue with more locations... This is getting long, so I'll add a note about the structure -->
+        
+    </div>
+    
+    <script>
+        let currentLocation = 0;
+        const locations = ['start', 'location1', 'location2', 'location3'];
+        const answers = {};
+        
+        function startInvestigation() {
+            document.getElementById('progressContainer').style.display = 'block';
+            currentLocation = 1;
+            showLocation(currentLocation);
+        }
+        
+        function showLocation(index) {
+            locations.forEach((id, i) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.remove('active');
+                    if (i === index) {
+                        el.classList.add('active');
+                    }
+                }
+            });
+            currentLocation = index;
+            updateProgress();
+            window.scrollTo(0, 0);
+            saveAnswers();
+        }
+        
+        function nextLocation() {
+            if (currentLocation < locations.length - 1) {
+                showLocation(currentLocation + 1);
+            }
+        }
+        
+        function previousLocation() {
+            if (currentLocation > 1) {
+                showLocation(currentLocation - 1);
+            }
+        }
+        
+        function updateProgress() {
+            const progress = ((currentLocation) / (locations.length - 1)) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = 
+                `Investigation Progress: ${Math.round(progress)}%`;
+        }
+        
+        function saveAnswers() {
+            const inputs = document.querySelectorAll('.answer-input');
+            inputs.forEach(input => {
+                if (input.value.trim()) {
+                    answers[input.id] = input.value.trim();
+                }
+            });
+        }
+        
+        function toggleReference(id) {
+            const content = document.getElementById(id);
+            content.classList.toggle('open');
+        }
+        
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>
