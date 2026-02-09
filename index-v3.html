@@ -52,38 +52,38 @@
             background-position: center;
         }
         
-        /* Office interior */
+        /* Office interior - simpler, less modern */
         .office-bg {
             background-image: 
                 linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)),
-                url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&q=80');
+                url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=1600&q=80');
             background-size: cover;
             background-position: center;
         }
         
-        /* Hospital corridor */
+        /* Hospital corridor - basic clinic */
         .hospital-bg {
             background-image: 
                 linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)),
-                url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1600&q=80');
+                url('https://images.unsplash.com/photo-1632833239869-a37e3a5806d2?w=1600&q=80');
             background-size: cover;
             background-position: center;
         }
         
-        /* Meeting room */
+        /* Meeting room - simple conference room */
         .meeting-bg {
             background-image: 
                 linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)),
-                url('https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=1600&q=80');
+                url('https://images.unsplash.com/photo-1431540015161-0bf868a2d407?w=1600&q=80');
             background-size: cover;
             background-position: center;
         }
         
-        /* Data/computer room */
+        /* Data/computer room - basic workspace */
         .data-bg {
             background-image: 
                 linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)),
-                url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1600&q=80');
+                url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1600&q=80');
             background-size: cover;
             background-position: center;
         }
@@ -378,10 +378,10 @@
             font-size: 17px;
         }
         
-        /* Questions */
+        /* Questions - GREEN theme */
         .question {
-            background: linear-gradient(135deg, #fff9e6, #fef5e7);
-            border: 3px solid #f39c12;
+            background: linear-gradient(135deg, #e8f5e9, #f1f8f4);
+            border: 3px solid #00953A;
             border-radius: 16px;
             padding: 30px;
             margin: 28px 0;
@@ -396,13 +396,13 @@
         }
         
         .q-number {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
+            background: linear-gradient(135deg, #00953A, #007A2F);
             color: white;
             padding: 12px 24px;
             border-radius: 28px;
             font-weight: bold;
             font-size: 16px;
-            box-shadow: 0 4px 12px rgba(243, 156, 18, 0.4);
+            box-shadow: 0 4px 12px rgba(0, 149, 58, 0.4);
         }
         
         .q-text {
@@ -425,8 +425,8 @@
         
         .answer-input:focus {
             outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 5px rgba(52, 152, 219, 0.15);
+            border-color: #00953A;
+            box-shadow: 0 0 0 5px rgba(0, 149, 58, 0.15);
         }
         
         textarea.answer-input {
@@ -765,7 +765,7 @@
             </div>
             
             <!-- YOUR REAL PHOTO OF DR. KIM -->
-            <img src="dr-kim.png" class="person-photo" alt="Dr. Sarah Kim">
+            <img src="./dr-kim.png" class="person-photo" alt="Dr. Sarah Kim" onerror="this.style.display='none'; console.error('Photo not found. Make sure dr-kim.png is in the same folder as this HTML file.');">
             
             <div class="dialogue">
                 <div class="dialogue-text">
@@ -858,7 +858,7 @@
                 <span class="badge-title">Senior Surveillance Officer</span>
             </div>
             
-            <img src="dr-kim.png" class="person-photo" alt="Dr. Sarah Kim">
+            <img src="./dr-kim.png" class="person-photo" alt="Dr. Sarah Kim" onerror="this.style.display='none'; console.error('Photo not found');">
             
             <div class="dialogue">
                 <div class="dialogue-text">
