@@ -274,6 +274,29 @@
             color: #ffffff;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
         }
+
+        .dialogue-speaker {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            margin-bottom: 14px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(52, 152, 219, 0.25);
+            border: 2px solid rgba(52, 152, 219, 0.65);
+        }
+
+        .dialogue-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.95);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.45);
+        }
         
         .btn-continue {
             position: absolute;
@@ -768,6 +791,10 @@
             <img src="./dr-kim.png" class="person-photo" alt="Dr. Sarah Kim" onerror="this.style.display='none'; console.error('Photo not found. Make sure dr-kim.png is in the same folder as this HTML file.');">
             
             <div class="dialogue">
+                <div class="dialogue-speaker">
+                    <img src="./dr-kim.png" class="dialogue-avatar" alt="Dr. Kim avatar" onerror="this.style.display='none';">
+                    Dr. Sarah Kim
+                </div>
                 <div class="dialogue-text">
                     "Good morning! Welcome to the team. I'm Dr. Sarah Kim, the senior surveillance officer here in District D. 
                     Before we dive into investigating our current influenza cases, I need to make sure you're familiar with 
@@ -861,6 +888,10 @@
             <img src="./dr-kim.png" class="person-photo" alt="Dr. Sarah Kim" onerror="this.style.display='none'; console.error('Photo not found');">
             
             <div class="dialogue">
+                <div class="dialogue-speaker">
+                    <img src="./dr-kim.png" class="dialogue-avatar" alt="Dr. Kim avatar" onerror="this.style.display='none';">
+                    Dr. Sarah Kim
+                </div>
                 <div class="dialogue-text">
                     "Great answers! Now let's look at the geographic distribution of influenza cases across District D. 
                     I've pulled up our interactive map showing all 44 confirmed cases from January through November 2024. 
