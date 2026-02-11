@@ -8,6 +8,13 @@ from pathlib import Path
 
 DOCX_PATH = Path("FETPF3.0_WS1_IG1_EN_Avian_Influenza_Instructor_Guide (6).docx")
 BOOTSTRAP_FLAG = "AVIAN_APP_STREAMLIT_BOOTSTRAPPED"
+import io
+import zipfile
+from pathlib import Path
+
+import streamlit as st
+
+DOCX_PATH = Path("FETPF3.0_WS1_IG1_EN_Avian_Influenza_Instructor_Guide (6).docx")
 
 
 def _extract_docx_text_fallback(docx_path: Path) -> str:
@@ -93,6 +100,7 @@ def _launch_with_streamlit() -> int:
 def main() -> None:
     import streamlit as st
 
+def main() -> None:
     st.set_page_config(page_title="Avian Influenza Case Study", layout="wide")
     st.title("Avian Influenza Case Study Q&A")
     st.caption("Type your answer below after reading the case study context.")
@@ -136,3 +144,4 @@ if __name__ == "__main__":
                 input("Press Enter to close...")
         else:
             raise SystemExit(_launch_with_streamlit())
+    main()
