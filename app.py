@@ -1,3 +1,13 @@
+import importlib.util
+import io
+import os
+import subprocess
+import sys
+import zipfile
+from pathlib import Path
+
+DOCX_PATH = Path("FETPF3.0_WS1_IG1_EN_Avian_Influenza_Instructor_Guide (6).docx")
+BOOTSTRAP_FLAG = "AVIAN_APP_STREAMLIT_BOOTSTRAPPED"
 import io
 import zipfile
 from pathlib import Path
@@ -66,6 +76,30 @@ def load_case_study_text(docx_path: Path) -> str:
     return _extract_docx_text_fallback(docx_path)
 
 
+def _running_inside_streamlit() -> bool:
+    """Best-effort detection for Streamlit runtime context."""
+    return any(
+        os.environ.get(key)
+        for key in (
+            "STREAMLIT_SERVER_PORT",
+            "STREAMLIT_SERVER_HEADLESS",
+            "STREAMLIT_BROWSER_GATHER_USAGE_STATS",
+            BOOTSTRAP_FLAG,
+        )
+    )
+
+
+def _launch_with_streamlit() -> int:
+    """Launch this script through `streamlit run` so double-click works better."""
+    env = os.environ.copy()
+    env[BOOTSTRAP_FLAG] = "1"
+    cmd = [sys.executable, "-m", "streamlit", "run", str(Path(__file__).resolve())]
+    return subprocess.call(cmd, env=env)
+
+
+def main() -> None:
+    import streamlit as st
+
 def main() -> None:
     st.set_page_config(page_title="Avian Influenza Case Study", layout="wide")
     st.title("Avian Influenza Case Study Q&A")
@@ -99,4 +133,15 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    if _running_inside_streamlit():
+        main()
+    else:
+        if importlib.util.find_spec("streamlit") is None:
+            print("Streamlit is not installed.")
+            print("Install it with: pip install streamlit")
+            print("Then run: python app.py  (or streamlit run app.py)")
+            if sys.stdin.isatty():
+                input("Press Enter to close...")
+        else:
+            raise SystemExit(_launch_with_streamlit())
     main()
