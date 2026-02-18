@@ -1,4 +1,4 @@
-import importlib.util
+# app.py — cleaned starter
 import io
 import os
 import subprocess
@@ -6,15 +6,10 @@ import sys
 import zipfile
 from pathlib import Path
 
-DOCX_PATH = Path("FETPF3.0_WS1_IG1_EN_Avian_Influenza_Instructor_Guide (6).docx")
 BOOTSTRAP_FLAG = "AVIAN_APP_STREAMLIT_BOOTSTRAPPED"
-import io
-import zipfile
-from pathlib import Path
 
-import streamlit as st
-
-DOCX_PATH = Path("FETPF3.0_WS1_IG1_EN_Avian_Influenza_Instructor_Guide (6).docx")
+# Put your case docx in a content/ folder and give it a short, safe name:
+DOCX_PATH = Path("content/avian_case_study.docx")
 
 
 def _extract_docx_text_fallback(docx_path: Path) -> str:
@@ -62,6 +57,7 @@ def load_case_study_text(docx_path: Path) -> str:
             f"Expected file at: {docx_path.resolve()}"
         )
 
+    # Try python-docx first (more reliable)
     try:
         from docx import Document  # type: ignore
 
@@ -70,9 +66,10 @@ def load_case_study_text(docx_path: Path) -> str:
         if paragraphs:
             return "\n\n".join(paragraphs)
     except Exception:
-        # Fall back to a lightweight parser if python-docx is unavailable.
+        # We fallback silently to the built-in extractor below
         pass
 
+    # Fallback lightweight parser
     return _extract_docx_text_fallback(docx_path)
 
 
@@ -98,9 +95,9 @@ def _launch_with_streamlit() -> int:
 
 
 def main() -> None:
+    """Primary Streamlit UI entry point."""
     import streamlit as st
 
-def main() -> None:
     st.set_page_config(page_title="Avian Influenza Case Study", layout="wide")
     st.title("Avian Influenza Case Study Q&A")
     st.caption("Type your answer below after reading the case study context.")
@@ -133,15 +130,18 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    # If this script is run directly in a non-streamlit interpreter, attempt to
+    # re-launch using `streamlit run` for the best UX.
     if _running_inside_streamlit():
         main()
     else:
-        if importlib.util.find_spec("streamlit") is None:
+        if importlib_spec := __import__("importlib.util").util.find_spec("streamlit"):
+            # streamlit is installed — launch via streamlit so the app runs in the proper server.
+            raise SystemExit(_launch_with_streamlit())
+        else:
+            # streamlit not installed; print helpful instructions for a developer.
             print("Streamlit is not installed.")
-            print("Install it with: pip install streamlit")
-            print("Then run: python app.py  (or streamlit run app.py)")
+            print("Install it with: pip install -r requirements.txt  (or pip install streamlit python-docx)")
+            print("Then run: streamlit run app.py")
             if sys.stdin.isatty():
                 input("Press Enter to close...")
-        else:
-            raise SystemExit(_launch_with_streamlit())
-    main()
