@@ -1,0 +1,45 @@
+{
+  "start": "intro",
+  "nodes": {
+    "intro": {
+      "id": "intro",
+      "type": "scene",
+      "title": "Part A — Review of Influenza Data",
+      "md": "content/text/intro.md",
+      "next": "q1"
+    },
+    "q1": {
+      "id": "q1",
+      "type": "short_answer",
+      "title": "Question 1 — Surveillance cycle steps",
+      "md": "content/text/q1.md",
+      "answer_guidance_md": "content/text/q1_answer.md",
+      "next": "q2",
+      "effects_on_submit": {"score_correct": 10}
+    },
+    "q2": {
+      "id": "q2",
+      "type": "short_answer",
+      "title": "Question 2 — Why surveillance locally and for animals?",
+      "md": "content/text/q2.md",
+      "answer_guidance_md": "content/text/q2_answer.md",
+      "next": "q3",
+      "effects_on_submit": {"score_correct": 10}
+    },
+    "q3": {
+      "id": "q3",
+      "type": "short_answer",
+      "title": "Question 3 — Which steps at district level?",
+      "md": "content/text/q3.md",
+      "answer_guidance_md": "content/text/q3_answer.md",
+      "next": "debrief",
+      "effects_on_submit": {"score_correct": 10}
+    },
+    "debrief": {
+      "id": "debrief",
+      "type": "debrief",
+      "title": "Debrief",
+      "md": "content/text/debrief.md"
+    }
+  }
+}
