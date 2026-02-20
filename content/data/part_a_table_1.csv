@@ -1,0 +1,10 @@
+Province,Number of clinical cases,"Clinical incidence rate (per 100,000)",Number of laboratory-confirmed cases,"Laboratory-confirmed incidence rate (per 100,000)",Number of deaths,Case-fatality rate (%)
+A,"3,696","1,600",(ND),(ND),3,0.08
+B,"90,832","2,800",(ND),(ND),118,0.13
+C,"126,341","1,975","1,388",21.7,51,0.04
+D,"262,958","2,250",397,3.4,281,0.11
+E,"87,119","1,325",(ND),(ND),96,0.11
+F,"96,348","1,850","1,424",27.3,173,0.18
+G,"42,760","1,475","1,230",2.4,26,0.06
+Total,"762,653",,"4,439",,"1,143",0.15
+Note: (ND) indicates that data on cases are not available and the rate cannot be calculated.,Note: (ND) indicates that data on cases are not available and the rate cannot be calculated.,Note: (ND) indicates that data on cases are not available and the rate cannot be calculated.,Note: (ND) indicates that data on cases are not available and the rate cannot be calculated.,Note: (ND) indicates that data on cases are not available and the rate cannot be calculated.,Note: (ND) indicates that data on cases are not available and the rate cannot be calculated.,Note: (ND) indicates that data on cases are not available and the rate cannot be calculated.

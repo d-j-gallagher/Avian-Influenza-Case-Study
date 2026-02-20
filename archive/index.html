@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avian Influenza Surveillance Case Study</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2d3561 0%, #1e2442 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .intro-section {
+            margin-bottom: 30px;
+        }
+        
+        .learning-objectives {
+            background: #f0f7ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .learning-objectives h3 {
+            color: #2d3561;
+            margin-bottom: 15px;
+        }
+        
+        .learning-objectives ul {
+            margin-left: 20px;
+        }
+        
+        .learning-objectives li {
+            margin: 8px 0;
+            color: #333;
+        }
+        
+        .section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section h2 {
+            color: #2d3561;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .question-box {
+            background: #f9f9f9;
+            border-left: 4px solid #764ba2;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .question-box h4 {
+            color: #2d3561;
+            margin-bottom: 15px;
+        }
+        
+        .answer-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            margin: 10px 0;
+            font-family: inherit;
+        }
+        
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        textarea.answer-input {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 10px 5px;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+        
+        .progress-bar {
+            background: #eee;
+            height: 8px;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.3s;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        
+        .data-table th,
+        .data-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        
+        .data-table th {
+            background: #2d3561;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .data-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .info-box {
+            background: #fff9e6;
+            border: 2px solid #ffd700;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .info-box strong {
+            color: #d97706;
+        }
+        
+        .score-display {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .score-display h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .score-display .score {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .start-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .start-screen h2 {
+            color: #2d3561;
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+        
+        .start-screen .button {
+            font-size: 18px;
+            padding: 15px 40px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦠 Avian Influenza Surveillance in Country Z</h1>
+            <p>A Case Study in Applied Epidemiology</p>
+        </div>
+        
+        <div class="content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+            </div>
+            
+            <!-- Start Screen -->
+            <div id="startScreen" class="section active">
+                <div class="start-screen">
+                    <h2>Welcome to Your Field Investigation</h2>
+                    
+                    <div class="learning-objectives">
+                        <h3>Learning Objectives</h3>
+                        <p>After completing this case study, you should be able to:</p>
+                        <ul>
+                            <li>List and describe the steps of the surveillance cycle</li>
+                            <li>Describe the purpose and use of local surveillance data</li>
+                            <li>Compare human and avian surveillance data</li>
+                            <li>Complete a surveillance case report form</li>
+                            <li>Calculate and interpret incidence rates and case-fatality rates</li>
+                            <li>Identify and correct data errors</li>
+                            <li>Summarize and interpret surveillance data by person, place, and time</li>
+                            <li>Identify how One Health can be applied to strengthening surveillance systems</li>
+                        </ul>
+                    </div>
+                    
+                    <p style="margin: 30px 0; font-size: 16px;">
+                        You are a new surveillance officer at District D public health office in Province A, Country Z. 
+                        Your mission is to investigate and analyze influenza surveillance data to provide critical 
+                        information to the District Chief Medical Officer.
+                    </p>
+                    
+                    <button class="button" onclick="startSimulation()">Begin Investigation</button>
+                </div>
+            </div>
+            
+            <!-- Part A: Review of Influenza Data -->
+            <div id="partA" class="section">
+                <h2>Part A: Review of Influenza Data</h2>
+                
+                <p style="margin: 20px 0;">
+                    The year is 2024. On a Monday morning in early March, you started a new job as a surveillance 
+                    officer focusing on influenza at the District D public health office, located in Province A in 
+                    Country Z. Before you arrived, you reviewed your notes on surveillance.
+                </p>
+                
+                <p style="margin: 20px 0;">
+                    An estimated 85,000 people live in District D, where you are assigned. The district has one 
+                    hospital (the General Hospital) and three health clinics: the District Clinic, the Children's 
+                    Clinic, and the General Clinic.
+                </p>
+                
+                <div class="question-box">
+                    <h4>Question 1: List the steps of the surveillance cycle.</h4>
+                    <textarea class="answer-input" id="q1" placeholder="Enter your answer here..."></textarea>
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 2a: Why conduct surveillance at the local/district level? (What is the reason for collecting surveillance data?)</h4>
+                    <textarea class="answer-input" id="q2a" placeholder="Enter your answer here..."></textarea>
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 2b: Why conduct surveillance of animal populations? (What is the rationale for sharing this surveillance data with the human sectors?)</h4>
+                    <textarea class="answer-input" id="q2b" placeholder="Enter your answer here..."></textarea>
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 3: Which of the steps in the surveillance cycle should be performed at the district level?</h4>
+                    <input type="text" class="answer-input" id="q3" placeholder="Enter your answer here...">
+                </div>
+                
+                <div class="navigation">
+                    <button class="button" onclick="previousSection()" disabled>← Previous</button>
+                    <button class="button" onclick="nextSection()">Next →</button>
+                </div>
+            </div>
+            
+            <!-- Part B: Influenza Surveillance -->
+            <div id="partB" class="section">
+                <h2>Part B: Influenza Surveillance</h2>
+                
+                <p style="margin: 20px 0;">
+                    In both 2021 and 2023, the country's economy was hit hard by outbreaks of avian influenza on 
+                    its poultry farms, resulting in large-scale chicken mortality and reduced poultry exports. 
+                    The government provided funding to the Ministry of Health's Influenza Program to strengthen 
+                    human and poultry influenza surveillance, including improved molecular testing.
+                </p>
+                
+                <div class="info-box">
+                    <strong>Current Influenza Surveillance Activities:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Case-based reporting by healthcare facilities</li>
+                        <li>Weekly reporting of influenza-like illness cases</li>
+                        <li>Laboratory report of all positive influenza results</li>
+                        <li>Improved laboratory molecular testing for novel avian influenza viruses</li>
+                        <li>Monthly visits to health centers and laboratories by district public health personnel</li>
+                    </ul>
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 13: Is the avian influenza surveillance system active, passive, or both? Support your answer.</h4>
+                    <textarea class="answer-input" id="q13" placeholder="Enter your answer here..."></textarea>
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 14: What is the purpose and value of requiring healthcare facilities and laboratories to report zero cases if none have been seen that week?</h4>
+                    <textarea class="answer-input" id="q14" placeholder="Enter your answer here..."></textarea>
+                </div>
+                
+                <div class="navigation">
+                    <button class="button" onclick="previousSection()">← Previous</button>
+                    <button class="button" onclick="nextSection()">Next →</button>
+                </div>
+            </div>
+            
+            <!-- Part C: Case Investigation -->
+            <div id="partC" class="section">
+                <h2>Part C: Case Investigation</h2>
+                
+                <p style="margin: 20px 0;">
+                    One of the most important aspects of influenza surveillance is the case investigation of 
+                    suspected cases of avian influenza in humans. As you are a new surveillance officer, you 
+                    want to familiarize yourself with how to investigate a suspected avian influenza case.
+                </p>
+                
+                <p style="margin: 20px 0;">
+                    Your colleague conducted the required monthly visits to healthcare facilities in District D. 
+                    While reviewing records at General Hospital X, your colleague identifies two suspected cases 
+                    of avian influenza that had not been reported.
+                </p>
+                
+                <div class="info-box">
+                    <strong>Activity:</strong> In this activity, you will review case information and complete 
+                    influenza case investigation forms for two patients: Gamma Delta and Alpha Beta.
+                </div>
+                
+                <h3 style="margin-top: 30px; color: #2d3561;">Patient 1: Gamma Delta</h3>
+                
+                <div style="background: #f9f9f9; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                    <h4>Patient Information:</h4>
+                    <p><strong>Name:</strong> Gamma Delta</p>
+                    <p><strong>Age:</strong> 5 years old</p>
+                    <p><strong>Sex:</strong> Female</p>
+                    <p><strong>Date of Birth:</strong> 18 July 2017</p>
+                    <p><strong>Address:</strong> 789 Flores Street, Echo</p>
+                    <p><strong>Parent:</strong> Omicron Delta (father)</p>
+                    <p><strong>Phone:</strong> 987-0214</p>
+                    <p><strong>Physician:</strong> Dr. One</p>
+                    
+                    <h4 style="margin-top: 15px;">Clinical Summary:</h4>
+                    <p><strong>Date of Onset:</strong> 07 July 2022</p>
+                    <p><strong>Initial Symptoms:</strong> Fever, chills, cough</p>
+                    <p><strong>Progression:</strong> Fever persisted, became lethargic, lost appetite, complained of body aches</p>
+                    <p><strong>Hospital Visit:</strong> 09 July 2022 at General Clinic</p>
+                    <p><strong>Examination Findings:</strong> Alert patient with increased respiratory rate, throat redness, enlarged neck lymph nodes</p>
+                    <p><strong>Maximum Temperature:</strong> 38.8°C</p>
+                    
+                    <h4 style="margin-top: 15px;">Laboratory Results:</h4>
+                    <p><strong>Sample Collection Date:</strong> 09 July 2022</p>
+                    <p><strong>Influenza Rapid Test:</strong> Positive for Influenza A</p>
+                    <p><strong>RT-PCR Result:</strong> Positive for subtype H3</p>
+                    
+                    <h4 style="margin-top: 15px;">Exposure History:</h4>
+                    <p><strong>Recent Travel:</strong> Visited grandparents in Zot Town, District D. Cousins were visiting and went to a local zoo.</p>
+                    <p><strong>Animal Contact:</strong> Unknown/Don't know</p>
+                    <p><strong>Hospitalized:</strong> Yes</p>
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 15: Based on the case information for Gamma Delta, does this patient meet the case definition for avian influenza?</h4>
+                    <textarea class="answer-input" id="q15" placeholder="Consider the case definition: probable case requires recent exposure to avian influenza A virus and clinical criteria. Confirmed case requires positive laboratory confirmation."></textarea>
+                </div>
+                
+                <h3 style="margin-top: 30px; color: #2d3561;">Patient 2: Alpha Beta</h3>
+                
+                <div style="background: #f9f9f9; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                    <h4>Patient Information:</h4>
+                    <p><strong>Name:</strong> Alpha Beta</p>
+                    <p><strong>Age:</strong> 32 years old</p>
+                    <p><strong>Sex:</strong> Male</p>
+                    <p><strong>Date of Birth:</strong> 12 April 1990</p>
+                    <p><strong>Address:</strong> 124 Camino Fuentes, Bravo</p>
+                    <p><strong>Phone:</strong> 867-5309</p>
+                    <p><strong>Occupation:</strong> Butcher</p>
+                    <p><strong>Physician:</strong> Dr. Two at General Hospital</p>
+                    
+                    <h4 style="margin-top: 15px;">Clinical Summary:</h4>
+                    <p><strong>Date of Onset:</strong> 02 July 2022</p>
+                    <p><strong>Initial Symptoms:</strong> Chills and fever</p>
+                    <p><strong>Progression:</strong> Severe headache, cough, muscle aches, high fever, weakness</p>
+                    <p><strong>Hospital Admission:</strong> 05 July 2022 at General Hospital</p>
+                    <p><strong>Examination Findings:</strong> Dehydrated with increased heart and respiratory rate</p>
+                    <p><strong>Maximum Temperature:</strong> 40.2°C</p>
+                    <p><strong>Duration of Fever:</strong> 3 days</p>
+                    <p><strong>Difficulty Breathing:</strong> Yes</p>
+                    
+                    <h4 style="margin-top: 15px;">Laboratory Results:</h4>
+                    <p><strong>Sample Collection Date:</strong> 05 July 2022</p>
+                    <p><strong>Influenza Rapid Test:</strong> Positive for Influenza A</p>
+                    <p><strong>RT-PCR Result:</strong> Positive for subtype H5</p>
+                    
+                    <h4 style="margin-top: 15px;">Exposure History:</h4>
+                    <p><strong>Occupation:</strong> Butcher who visits the animal market frequently to purchase animals, usually poultry</p>
+                    <p><strong>Recent Animal Contact:</strong> Last visit to live animal market was 27 June 2022, when he purchased chickens</p>
+                    <p><strong>Direct Contact with Animals:</strong> Yes - purchased chickens from animal market</p>
+                    <p><strong>Hospitalized:</strong> Yes, still in hospital as of the report date</p>
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 16: Based on the case information for Alpha Beta, does this patient meet the case definition for avian influenza?</h4>
+                    <textarea class="answer-input" id="q16" placeholder="Consider: exposure to animals within 10 days before onset, clinical symptoms, and laboratory confirmation."></textarea>
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 17: Compare the two patients. What are the key differences in their exposure history and why might this be important for surveillance?</h4>
+                    <textarea class="answer-input" id="q17" placeholder="Enter your answer here..."></textarea>
+                </div>
+                
+                <div class="navigation">
+                    <button class="button" onclick="previousSection()">← Previous</button>
+                    <button class="button" onclick="nextSection()">Next →</button>
+                </div>
+            </div>
+            
+            <!-- Part D: Data Cleaning -->
+            <div id="partD" class="section">
+                <h2>Part D: Data Cleaning and Management</h2>
+                
+                <p style="margin: 20px 0;">
+                    Your first week as a new surveillance officer went well. It is now Monday of the second week. 
+                    The hospital and three clinics in District D have submitted their weekly reports, and the data 
+                    has been entered into the electronic database.
+                </p>
+                
+                <p style="margin: 20px 0;">
+                    The District Chief Medical Officer wants an update on the influenza situation by tomorrow morning. 
+                    Before analyzing the data, you must check its quality and correct any errors.
+                </p>
+                
+                <h3 style="margin-top: 30px; color: #2d3561;">Table 2a: Age Distribution</h3>
+                <table class="data-table">
+                    <tr><th>Age</th><th>Number of cases</th></tr>
+                    <tr><td>2</td><td>2</td></tr>
+                    <tr><td>5</td><td>3</td></tr>
+                    <tr><td>6</td><td>1</td></tr>
+                    <tr><td>8</td><td>1</td></tr>
+                    <tr><td>9</td><td>2</td></tr>
+                    <tr><td>10-63</td><td>29</td></tr>
+                    <tr><td>64</td><td>1</td></tr>
+                    <tr><td>67</td><td>2</td></tr>
+                    <tr><td>73</td><td>1</td></tr>
+                    <tr><td>77</td><td>1</td></tr>
+                    <tr><td>153</td><td>1</td></tr>
+                    <tr><th>Total</th><th>44</th></tr>
+                </table>
+                
+                <div class="question-box">
+                    <h4>Question 18: What data quality problems do you see in Table 2a? What steps should you take to correct the information?</h4>
+                    <textarea class="answer-input" id="q18" placeholder="Enter your answer here..."></textarea>
+                </div>
+                
+                <h3 style="margin-top: 30px; color: #2d3561;">Table 2b: Cases by Health Facility</h3>
+                <table class="data-table">
+                    <tr><th>Health Facility</th><th>Number of cases</th></tr>
+                    <tr><td>Children's clinic</td><td>9</td></tr>
+                    <tr><td>General clinic</td><td>4</td></tr>
+                    <tr><td>District clinic</td><td>6</td></tr>
+                    <tr><td>General Hospital</td><td>24</td></tr>
+                    <tr><td>Provincial Hospital</td><td>1</td></tr>
+                    <tr><th>Total</th><th>44</th></tr>
+                </table>
+                
+                <div class="question-box">
+                    <h4>Question 19: What data quality problems do you see in Table 2b?</h4>
+                    <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                        Reminder: District D has only four health facilities: General Hospital, District Clinic, 
+                        Children's Clinic, and General Clinic.
+                    </p>
+                    <textarea class="answer-input" id="q19" placeholder="Enter your answer here..."></textarea>
+                </div>
+                
+                <h3 style="margin-top: 30px; color: #2d3561;">Table 2c: Fever Status</h3>
+                <table class="data-table">
+                    <tr><th>Fever</th><th>Number of cases</th></tr>
+                    <tr><td>Yes</td><td>40</td></tr>
+                    <tr><td>No</td><td>2</td></tr>
+                    <tr><td>Unknown</td><td>1</td></tr>
+                    <tr><td>Maybe</td><td>1</td></tr>
+                    <tr><th>Total</th><th>44</th></tr>
+                </table>
+                
+                <div class="question-box">
+                    <h4>Question 20: What data quality problems do you see in Table 2c?</h4>
+                    <textarea class="answer-input" id="q20" placeholder="Enter your answer here..."></textarea>
+                </div>
+                
+                <div class="navigation">
+                    <button class="button" onclick="previousSection()">← Previous</button>
+                    <button class="button" onclick="nextSection()">Next →</button>
+                </div>
+            </div>
+            
+            <!-- Part E: Data Analysis -->
+            <div id="partE" class="section">
+                <h2>Part E: Data Analysis</h2>
+                
+                <p style="margin: 20px 0;">
+                    After cleaning the data, you're ready to analyze it. The District Chief Medical Officer 
+                    wants to know about the influenza situation in District D for 2024.
+                </p>
+                
+                <div class="info-box">
+                    <strong>Key Information:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>District D population: 85,000</li>
+                        <li>Data period: January through November 2024</li>
+                        <li>Total confirmed cases: 44</li>
+                    </ul>
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 21: Calculate the median and mean age of the cases.</h4>
+                    <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                        Use the age data from Table 3 (provided in the case study).
+                    </p>
+                    <input type="text" class="answer-input" id="q21_median" placeholder="Median age (years)">
+                    <input type="text" class="answer-input" id="q21_mean" placeholder="Mean age (years)">
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 22: Which age group option would you prefer for reporting and why?</h4>
+                    <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                        <strong>Option 1:</strong> ≤10, 10-20, 20-30, 30-40, 40-50, 50-60, 60+<br>
+                        <strong>Option 2:</strong> ≤10, 11-20, 21-30, 31-40, 41-50, 51-60, >60<br>
+                        <strong>Option 3:</strong> ≤9, 10-19, 20-29, 30-39, 40-49, 50-59, 60+
+                    </p>
+                    <textarea class="answer-input" id="q22" placeholder="Enter your answer here..."></textarea>
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 23: What proportion of patients with influenza were exposed to animals in the 10 days prior to the onset of their illness?</h4>
+                    <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                        From Table 3: 4 out of 44 patients had animal exposure
+                    </p>
+                    <input type="text" class="answer-input" id="q23" placeholder="Enter percentage (e.g., 9.1%)">
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 24: What does this information tell you about where the patients may have contracted influenza?</h4>
+                    <textarea class="answer-input" id="q24" placeholder="Enter your answer here..."></textarea>
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 25: What proportion of cases were hospitalized?</h4>
+                    <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                        3 out of 44 patients were hospitalized
+                    </p>
+                    <input type="text" class="answer-input" id="q25_hosp" placeholder="Enter percentage">
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 26: What was the influenza case-fatality rate?</h4>
+                    <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                        1 out of 44 patients died
+                    </p>
+                    <input type="text" class="answer-input" id="q26_cfr" placeholder="Enter percentage">
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 27: What was the year-to-date incidence rate of influenza in District D for 2024?</h4>
+                    <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                        Provide your response in cases per 100,000 persons per 11-month period.<br>
+                        Formula: (Number of cases / Population) × 100,000
+                    </p>
+                    <input type="text" class="answer-input" id="q27" placeholder="Enter incidence rate per 100,000">
+                </div>
+                
+                <div class="navigation">
+                    <button class="button" onclick="previousSection()">← Previous</button>
+                    <button class="button" onclick="nextSection()">Next →</button>
+                </div>
+            </div>
+            
+            <!-- Part F: One Health Investigation -->
+            <div id="partF" class="section">
+                <h2>Part F: One Health Investigation</h2>
+                
+                <p style="margin: 20px 0;">
+                    Due to the avian influenza outbreaks in 2021 and 2023 and their associated economic losses, 
+                    the Ministry of Agriculture decided to vaccinate domestic chickens and ducks to control and 
+                    potentially prevent future avian influenza outbreaks.
+                </p>
+                
+                <p style="margin: 20px 0;">
+                    You meet with the veterinary surveillance officer to review studies about highly pathogenic 
+                    avian influenza (H5N1) vaccines and immune responses in poultry.
+                </p>
+                
+                <div class="info-box">
+                    <strong>Study Background:</strong> A study of H5N1 in chickens and ducks raised on small farms 
+                    sampled birds monthly from May 2021 to May 2022. Chickens are raised entirely indoors, while 
+                    ducks are allowed outdoors during the day. The overall H5 antibody prevalence during the study 
+                    period was 43% for ducks and 19% for chickens in unvaccinated birds.
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 28: Why might there be a difference between the seroprevalence of ducks and chickens?</h4>
+                    <textarea class="answer-input" id="q28" placeholder="Consider environmental factors, exposure patterns, and immune responses..."></textarea>
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 29: The study showed peaks in antibody prevalence in January and May. What could be the cause of these peaks?</h4>
+                    <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                        Hint: In this area of Vietnam, rice harvesting takes place in January and May. During this time, 
+                        farmers often allow ducks to wander in their fields.
+                    </p>
+                    <textarea class="answer-input" id="q29" placeholder="Enter your answer here..."></textarea>
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 30: Vaccination campaigns were conducted in September and April. After vaccination, the antibody seroprevalence was 54% for ducks and 56% for chickens.</h4>
+                    <p style="margin: 10px 0;"><strong>a)</strong> Was antibody seroprevalence higher in vaccinated compared to unvaccinated chickens and ducks?</p>
+                    <textarea class="answer-input" id="q30a" placeholder="Enter your answer here..."></textarea>
+                    
+                    <p style="margin: 10px 0;"><strong>b)</strong> Should vaccination be recommended for the flocks in the study?</p>
+                    <textarea class="answer-input" id="q30b" placeholder="Enter your answer here..."></textarea>
+                    
+                    <p style="margin: 10px 0;"><strong>c)</strong> Are the vaccination campaigns being conducted at an appropriate time?</p>
+                    <textarea class="answer-input" id="q30c" placeholder="Enter your answer here..."></textarea>
+                </div>
+                
+                <div class="navigation">
+                    <button class="button" onclick="previousSection()">← Previous</button>
+                    <button class="button" onclick="nextSection()">Next →</button>
+                </div>
+            </div>
+            
+            <!-- Part G: Results Report -->
+            <div id="partG" class="section">
+                <h2>Part G: Results Report</h2>
+                
+                <p style="margin: 20px 0;">
+                    With your analysis report in hand, you and your supervisor sat down for an informal meeting 
+                    with the District Chief Medical Officer (DCMO).
+                </p>
+                
+                <p style="margin: 20px 0;">
+                    The DCMO almost immediately asked you if you thought the human influenza incidence rate would 
+                    be lower in 2024 than in 2023 (64 cases/100,000).
+                </p>
+                
+                <div class="info-box">
+                    <strong>Key Facts:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>District D population: 85,000</li>
+                        <li>As of November 2024: 44 cases reported</li>
+                        <li>2023 incidence rate: 64 per 100,000</li>
+                        <li>Fewer influenza cases typically occur during winter months (November to February) in Country Z</li>
+                    </ul>
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 31: What is your response to the District Chief Medical Officer? Will the 2024 incidence rate likely be lower than 2023?</h4>
+                    <textarea class="answer-input" id="q31" placeholder="Calculate the current incidence rate and consider seasonal patterns..."></textarea>
+                </div>
+                
+                <div class="question-box">
+                    <h4>Question 32: Based on your surveillance analysis, what are the key recommendations you would make to the DCMO?</h4>
+                    <textarea class="answer-input" id="q32" placeholder="Consider prevention, control measures, continued surveillance, etc..."></textarea>
+                </div>
+                
+                <div class="navigation">
+                    <button class="button" onclick="previousSection()">← Previous</button>
+                    <button class="button" onclick="nextSection()">Next →</button>
+                </div>
+            </div>
+            
+            <!-- Part H: Epilogue -->
+            <div id="partH" class="section">
+                <h2>Part H: Epilogue</h2>
+                
+                <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; border-radius: 10px; margin: 20px 0;">
+                    <h3 style="color: white; border: none; margin-bottom: 15px;">Outcome</h3>
+                    <p style="margin: 10px 0;">
+                        After a few more questions, the DCMO thanked you and your supervisor for your time and hard work. 
+                        The DCMO was pleased to learn that influenza surveillance was going well in the district.
+                    </p>
+                    <p style="margin: 10px 0;">
+                        The DCMO was scheduled to meet with the district governor at the end of the week to discuss 
+                        health and funding priorities, and assured the surveillance team that he would ask the governor 
+                        for continued support for influenza control efforts.
+                    </p>
+                    <p style="margin: 10px 0;">
+                        The district veterinary surveillance officer discussed his findings with the Regional Veterinary 
+                        Officer and proposed the continuation of vaccination campaigns against avian influenza.
+                    </p>
+                </div>
+                
+                <div class="question-box">
+                    <h4>Reflection Question: What were the most important lessons you learned from this case study?</h4>
+                    <textarea class="answer-input" id="q33_reflection" placeholder="Reflect on surveillance, data quality, One Health collaboration, etc..."></textarea>
+                </div>
+                
+                <div class="question-box">
+                    <h4>Reflection Question: How would you apply what you learned to a real outbreak investigation in your own context?</h4>
+                    <textarea class="answer-input" id="q34_reflection" placeholder="Enter your thoughts here..."></textarea>
+                </div>
+                
+                <div class="navigation">
+                    <button class="button" onclick="previousSection()">← Previous</button>
+                    <button class="button" onclick="completeSimulation()">Complete Simulation →</button>
+                </div>
+            </div>
+            
+            <!-- Final Score Screen -->
+            <div id="scoreScreen" class="section">
+                <h2>Investigation Complete!</h2>
+                
+                <div class="score-display">
+                    <h3>Your Performance</h3>
+                    <div class="score" id="finalScore">0%</div>
+                    <p>Questions Answered: <span id="questionsAnswered">0</span></p>
+                </div>
+                
+                <div style="margin: 30px 0; text-align: center;">
+                    <p style="font-size: 18px; margin-bottom: 20px;">
+                        Congratulations on completing the Avian Influenza Surveillance case study!
+                    </p>
+                    <p style="color: #666;">
+                        You have successfully worked through an outbreak investigation, analyzed surveillance data,
+                        and provided critical information to public health decision-makers.
+                    </p>
+                </div>
+                
+                <div class="navigation" style="justify-content: center;">
+                    <button class="button" onclick="location.reload()">Start Over</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentSection = -1;
+        const sections = ['startScreen', 'partA', 'partB', 'partC', 'partD', 'partE', 'partF', 'partG', 'partH', 'scoreScreen'];
+        const answers = {};
+        
+        function startSimulation() {
+            currentSection = 0;
+            showSection(1);
+        }
+        
+        function showSection(index) {
+            sections.forEach((id, i) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.remove('active');
+                    if (i === index) {
+                        el.classList.add('active');
+                    }
+                }
+            });
+            currentSection = index;
+            updateProgress();
+            window.scrollTo(0, 0);
+        }
+        
+        function nextSection() {
+            saveAnswers();
+            if (currentSection < sections.length - 1) {
+                showSection(currentSection + 1);
+            }
+        }
+        
+        function previousSection() {
+            if (currentSection > 1) {
+                showSection(currentSection - 1);
+            }
+        }
+        
+        function completeSimulation() {
+            saveAnswers();
+            calculateScore();
+            showSection(sections.length - 1);
+        }
+        
+        function saveAnswers() {
+            const inputs = document.querySelectorAll('.answer-input');
+            inputs.forEach(input => {
+                if (input.value.trim()) {
+                    answers[input.id] = input.value.trim();
+                }
+            });
+        }
+        
+        function updateProgress() {
+            const progress = (currentSection / (sections.length - 1)) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+        
+        function calculateScore() {
+            const totalQuestions = Object.keys(answers).length;
+            const reflectionQuestions = ['q33_reflection', 'q34_reflection'];
+            const nonReflectionAnswers = Object.keys(answers).filter(q => !reflectionQuestions.includes(q)).length;
+            
+            document.getElementById('questionsAnswered').textContent = totalQuestions;
+            
+            // Simple completion-based scoring
+            const completionRate = totalQuestions > 0 ? Math.round((totalQuestions / 34) * 100) : 0;
+            document.getElementById('finalScore').textContent = completionRate + '%';
+        }
+        
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>

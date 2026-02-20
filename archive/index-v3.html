@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avian Influenza Field Investigation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        /* Scene container */
+        .scene {
+            width: 100vw;
+            min-height: 100vh;
+            position: relative;
+            display: none;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .scene.active {
+            display: block;
+        }
+        
+        /* Dark overlay for readability */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.7) 100%);
+        }
+        
+        /* Start screen - government building exterior */
+        .start-bg {
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6)),
+                url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1600&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        /* Office interior - simpler, less modern */
+        .office-bg {
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)),
+                url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=1600&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        /* Hospital corridor - basic clinic */
+        .hospital-bg {
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)),
+                url('https://images.unsplash.com/photo-1632833239869-a37e3a5806d2?w=1600&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        /* Meeting room - simple conference room */
+        .meeting-bg {
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)),
+                url('https://images.unsplash.com/photo-1431540015161-0bf868a2d407?w=1600&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        /* Data/computer room - basic workspace */
+        .data-bg {
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)),
+                url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1600&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .start-content {
+            max-width: 850px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            margin: 0 auto;
+            padding: 80px 40px;
+        }
+        
+        .logo {
+            font-size: 130px;
+            margin-bottom: 25px;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.9));
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-25px); }
+        }
+        
+        h1 {
+            font-size: 52px;
+            margin-bottom: 18px;
+            text-shadow: 4px 4px 20px rgba(0,0,0,0.9);
+            font-weight: bold;
+        }
+        
+        h2 {
+            font-size: 26px;
+            margin-bottom: 35px;
+            opacity: 0.95;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
+        }
+        
+        .mission-box {
+            background: rgba(0,0,0,0.75);
+            padding: 35px;
+            border-radius: 18px;
+            margin: 35px 0;
+            border: 3px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(15px);
+        }
+        
+        .btn-start {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            border: none;
+            padding: 22px 55px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 35px;
+            cursor: pointer;
+            box-shadow: 0 12px 35px rgba(46, 204, 113, 0.6);
+            margin-top: 25px;
+            transition: all 0.3s;
+        }
+        
+        .btn-start:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 18px 45px rgba(46, 204, 113, 0.7);
+        }
+        
+        /* HUD */
+        .hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 25px 50px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.95), transparent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+        }
+        
+        .hud-location {
+            background: rgba(0,0,0,0.85);
+            padding: 12px 25px;
+            border-radius: 25px;
+            border: 2px solid rgba(52, 152, 219, 0.7);
+            font-weight: bold;
+            font-size: 17px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        
+        .hud-time {
+            background: rgba(0,0,0,0.85);
+            padding: 12px 25px;
+            border-radius: 25px;
+            border: 2px solid rgba(46, 204, 113, 0.7);
+            color: #2ecc71;
+            font-weight: bold;
+            font-size: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        
+        .progress-bar {
+            flex: 1;
+            max-width: 350px;
+            height: 12px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 10px;
+            margin: 0 25px;
+            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.4);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            transition: width 0.6s ease;
+            box-shadow: 0 0 15px rgba(52, 152, 219, 1);
+        }
+        
+        /* Character area */
+        .character-area {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 40;
+        }
+        
+        /* REAL PERSON PHOTO */
+        .person-photo {
+            position: absolute;
+            bottom: 180px;
+            left: 120px;
+            width: 320px;
+            height: 480px;
+            object-fit: cover;
+            object-position: center bottom;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 
+                0 -20px 60px rgba(0,0,0,0.8),
+                inset 0 -100px 100px rgba(0,0,0,0.3);
+            filter: brightness(1.1) contrast(1.1);
+        }
+        
+        .name-badge {
+            position: absolute;
+            bottom: 680px;
+            left: 120px;
+            background: rgba(0,0,0,0.95);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-size: 17px;
+            font-weight: bold;
+            border: 3px solid #3498db;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.8);
+            z-index: 50;
+        }
+        
+        .badge-title {
+            display: block;
+            font-size: 13px;
+            opacity: 0.85;
+            margin-top: 4px;
+            color: #3498db;
+        }
+        
+        /* Dialogue box */
+        .dialogue {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.96);
+            border-top: 4px solid #3498db;
+            padding: 40px 70px;
+            min-height: 180px;
+            box-shadow: 0 -20px 60px rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+        }
+        
+        .dialogue-text {
+            font-size: 20px;
+            line-height: 2;
+            margin-bottom: 20px;
+            color: #ffffff;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+
+        .dialogue-speaker {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            margin-bottom: 14px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(52, 152, 219, 0.25);
+            border: 2px solid rgba(52, 152, 219, 0.65);
+        }
+
+        .dialogue-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.95);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.45);
+        }
+        
+        .btn-continue {
+            position: absolute;
+            right: 60px;
+            bottom: 35px;
+            background: linear-gradient(135deg, #3498db, #2ecc71);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: bold;
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.6);
+            animation: pulse 2.5s infinite;
+            transition: all 0.3s;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+        }
+        
+        .btn-continue:hover {
+            box-shadow: 0 12px 30px rgba(52, 152, 219, 0.8);
+            transform: scale(1.08);
+            animation: none;
+        }
+        
+        /* Content modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.92);
+            z-index: 100;
+            overflow-y: auto;
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 20px;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            max-width: 950px;
+            width: 100%;
+            max-height: 92vh;
+            overflow-y: auto;
+            color: #333;
+            position: relative;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+            border: 4px solid #3498db;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 26px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+        
+        .modal-close:hover {
+            background: #c0392b;
+            transform: rotate(90deg);
+        }
+        
+        /* Document styling */
+        .doc-header {
+            border-bottom: 4px solid #2c3e50;
+            padding-bottom: 20px;
+            margin-bottom: 35px;
+        }
+        
+        .doc-title {
+            font-size: 30px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 12px;
+        }
+        
+        .doc-subtitle {
+            color: #7f8c8d;
+            font-size: 17px;
+        }
+        
+        /* Questions - GREEN theme */
+        .question {
+            background: linear-gradient(135deg, #e8f5e9, #f1f8f4);
+            border: 3px solid #00953A;
+            border-radius: 16px;
+            padding: 30px;
+            margin: 28px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .q-header {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+        
+        .q-number {
+            background: linear-gradient(135deg, #00953A, #007A2F);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 28px;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(0, 149, 58, 0.4);
+        }
+        
+        .q-text {
+            font-size: 18px;
+            color: #2c3e50;
+            font-weight: 500;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+        
+        .answer-input {
+            width: 100%;
+            padding: 18px;
+            border: 3px solid #ddd;
+            border-radius: 12px;
+            font-size: 17px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        
+        .answer-input:focus {
+            outline: none;
+            border-color: #00953A;
+            box-shadow: 0 0 0 5px rgba(0, 149, 58, 0.15);
+        }
+        
+        textarea.answer-input {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 18px;
+            justify-content: flex-end;
+            margin-top: 40px;
+        }
+        
+        .btn {
+            padding: 18px 45px;
+            border: none;
+            border-radius: 32px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2ecc71);
+            color: white;
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.5);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(52, 152, 219, 0.6);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #2c3e50;
+            border: 3px solid #3498db;
+        }
+        
+        .btn-secondary:hover {
+            background: #f8f9fa;
+            transform: translateY(-3px);
+        }
+        
+        /* Reference drawer */
+        .ref-drawer {
+            position: fixed;
+            right: -440px;
+            top: 0;
+            width: 440px;
+            height: 100vh;
+            background: rgba(255,255,255,0.98);
+            box-shadow: -10px 0 35px rgba(0,0,0,0.5);
+            transition: right 0.4s ease;
+            z-index: 200;
+            overflow-y: auto;
+            padding: 35px;
+            color: #333;
+            border-left: 5px solid #3498db;
+        }
+        
+        .ref-drawer.open {
+            right: 0;
+        }
+        
+        .ref-toggle {
+            position: fixed;
+            right: 30px;
+            top: 100px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 18px 26px;
+            border-radius: 32px 0 0 32px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 150;
+            box-shadow: -6px 6px 18px rgba(0,0,0,0.5);
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .ref-toggle:hover {
+            background: linear-gradient(135deg, #2980b9, #21618c);
+            padding-right: 35px;
+        }
+        
+        .ref-box {
+            background: linear-gradient(135deg, #e8f4f8, #d6eaf8);
+            padding: 22px;
+            border-radius: 14px;
+            margin: 22px 0;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .ref-box h3 {
+            color: #2c3e50;
+            margin-bottom: 14px;
+            font-size: 19px;
+        }
+        
+        .ref-box p {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #555;
+        }
+        
+        /* Data tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        
+        .data-table th {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 18px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .data-table td {
+            padding: 16px 18px;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 15px;
+        }
+        
+        .data-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .data-table tr:hover {
+            background: #e8f4f8;
+        }
+        
+        .data-error {
+            background: #ffe6e6 !important;
+            color: #c0392b;
+            font-weight: bold;
+        }
+        
+        /* Map styling */
+        .map-container {
+            width: 100%;
+            height: 550px;
+            background-image:
+                url('https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            border-radius: 16px;
+            position: relative;
+            border: 4px solid #27ae60;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            margin: 25px 0;
+        }
+        
+        .map-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(144, 238, 144, 0.25);
+        }
+        
+        .map-legend {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: rgba(255,255,255,0.97);
+            padding: 20px;
+            border-radius: 14px;
+            font-size: 14px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            border: 3px solid #27ae60;
+            z-index: 10;
+        }
+        
+        .town-pin {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 5;
+        }
+        
+        .town-pin:hover {
+            transform: scale(1.25);
+            z-index: 15;
+        }
+        
+        .pin-marker::before {
+            content: '📍';
+            font-size: 50px;
+            position: absolute;
+            filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6));
+        }
+        
+        .pin-label {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.95);
+            color: white;
+            padding: 7px 16px;
+            border-radius: 18px;
+            white-space: nowrap;
+            font-size: 14px;
+            font-weight: bold;
+            border: 2px solid #e74c3c;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        
+        .pin-count {
+            position: absolute;
+            top: 2px;
+            left: 15px;
+            background: #e74c3c;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            border: 3px solid white;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <!-- Reference Drawer - GENERAL INFO ONLY, NO ANSWERS -->
+    <button class="ref-toggle" onclick="toggleRef()">📚 Quick Reference</button>
+    <div class="ref-drawer" id="refDrawer">
+        <h2 style="color: #2c3e50; margin-bottom: 28px; font-size: 26px;">📋 Reference Materials</h2>
+        
+        <div class="ref-box">
+            <h3>🦠 Avian Influenza Overview</h3>
+            <p>
+                <strong>Type:</strong> Influenza A virus that primarily infects birds<br>
+                <strong>Incubation Period:</strong> Typically 3-5 days<br>
+                <strong>Transmission to Humans:</strong> Direct contact with infected birds (rare)<br>
+                <strong>Key Symptoms:</strong> Fever ≥38°C, cough, difficulty breathing<br>
+                <strong>Severity:</strong> Can cause severe disease with high mortality in humans
+            </p>
+        </div>
+        
+        <div class="ref-box" style="background: linear-gradient(135deg, #e8f9f0, #d4f4e0); border-left-color: #27ae60;">
+            <h3>🏥 District D Information</h3>
+            <p>
+                <strong>Total Population:</strong> 85,000 residents<br>
+                <strong>Health Facilities:</strong><br>
+                • 1 Hospital: General Hospital<br>
+                • 3 Clinics: District Clinic, Children's Clinic, General Clinic<br>
+                <strong>Geographic Coverage:</strong> 8 towns
+            </p>
+        </div>
+        
+        <div class="ref-box" style="background: linear-gradient(135deg, #fff9e6, #fef3d6); border-left-color: #f39c12;">
+            <h3>📊 Case Classification</h3>
+            <p>
+                <strong>Confirmed Case:</strong> Laboratory-confirmed (RT-PCR positive) plus clinical criteria and exposure history<br>
+                <strong>Probable Case:</strong> Clinical symptoms and exposure history, but lab results pending or unknown
+            </p>
+        </div>
+        
+        <div class="ref-box" style="background: linear-gradient(135deg, #ffeef0, #ffe0e4); border-left-color: #e74c3c;">
+            <h3>📐 Useful Formulas</h3>
+            <p>
+                <strong>Incidence Rate:</strong> (New cases / Population) × 100,000<br>
+                <strong>Case-Fatality Rate:</strong> (Deaths / Total cases) × 100%<br>
+                <strong>Proportion:</strong> (Part / Whole) × 100%
+            </p>
+        </div>
+    </div>
+    
+    <!-- START SCENE -->
+    <div class="scene start-bg active" id="sceneStart">
+        <div class="overlay"></div>
+        <div class="start-content">
+            <div class="logo">🦠</div>
+            <h1>AVIAN INFLUENZA</h1>
+            <h2>Field Investigation Simulation</h2>
+            
+            <div class="mission-box">
+                <h3 style="margin-bottom: 20px; font-size: 26px;">📋 Your Mission</h3>
+                <p style="font-size: 18px; line-height: 2;">
+                    <strong>Date:</strong> Monday, March 4, 2024<br>
+                    <strong>Location:</strong> District D Public Health Office, Province A, Country Z<br>
+                    <strong>Your Role:</strong> Newly Appointed Surveillance Officer
+                </p>
+                <p style="margin-top: 28px; font-size: 17px; line-height: 1.9;">
+                    Welcome to your first day at the District D public health office. 
+                    An influenza outbreak may be developing in your district. Your task: 
+                    investigate cases, analyze surveillance data, and provide critical 
+                    information to guide public health action. Lives may depend on your work.
+                </p>
+            </div>
+            
+            <button class="btn-start" onclick="goToScene('scene1')">
+                🎮 START INVESTIGATION
+            </button>
+        </div>
+    </div>
+    
+    <!-- SCENE 1: Office - Meeting Dr. Kim -->
+    <div class="scene office-bg" id="scene1">
+        <div class="overlay"></div>
+        
+        <div class="hud">
+            <div class="hud-location">🏢 District D Public Health Office</div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 10%"></div>
+            </div>
+            <div class="hud-time">Monday, March 4 • 08:30 AM</div>
+        </div>
+        
+        <div class="character-area">
+            <div class="name-badge">
+                Dr. Sarah Kim
+                <span class="badge-title">Senior Surveillance Officer</span>
+            </div>
+            
+            <!-- YOUR REAL PHOTO OF DR. KIM -->
+            <img src="https://raw.githubusercontent.com/d-j-gallagher/Avian-Influenza-Case-Study/main/dr-kim.png" class="person-photo" alt="Dr. Sarah Kim" onerror="this.style.display='none'; console.error('Photo not found. Make sure dr-kim.png is in the same folder as this HTML file.');">
+            
+            <div class="dialogue">
+                <div class="dialogue-speaker">
+                    <img src="https://raw.githubusercontent.com/d-j-gallagher/Avian-Influenza-Case-Study/main/dr-kim.png" class="dialogue-avatar" alt="Dr. Kim avatar" onerror="this.style.display='none';">
+                    Dr. Sarah Kim
+                </div>
+                <div class="dialogue-text">
+                    "Good morning! Welcome to the team. I'm Dr. Sarah Kim, the senior surveillance officer here in District D. 
+                    Before we dive into investigating our current influenza cases, I need to make sure you're familiar with 
+                    surveillance fundamentals. Let's start with a quick knowledge check..."
+                </div>
+                <button class="btn-continue" onclick="showModal('modal1')">Continue →</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal 1: Surveillance Questions -->
+    <div class="modal" id="modal1">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('modal1')">×</button>
+            
+            <div class="doc-header">
+                <div class="doc-title">📝 Surveillance Fundamentals Review</div>
+                <div class="doc-subtitle">Complete these questions to proceed with the investigation</div>
+            </div>
+            
+            <div class="question">
+                <div class="q-header">
+                    <span style="font-size: 40px;">❓</span>
+                    <span class="q-number">Question 1</span>
+                </div>
+                <div class="q-text">
+                    List the steps of the surveillance cycle.
+                </div>
+                <textarea class="answer-input" id="q1" placeholder="Type your answer here..."></textarea>
+            </div>
+            
+            <div class="question">
+                <div class="q-header">
+                    <span style="font-size: 40px;">❓</span>
+                    <span class="q-number">Question 2a</span>
+                </div>
+                <div class="q-text">
+                    Why conduct surveillance at the local/district level? What is the reason for collecting surveillance data?
+                </div>
+                <textarea class="answer-input" id="q2a" placeholder="Type your answer here..."></textarea>
+            </div>
+            
+            <div class="question">
+                <div class="q-header">
+                    <span style="font-size: 40px;">❓</span>
+                    <span class="q-number">Question 2b</span>
+                </div>
+                <div class="q-text">
+                    Why conduct surveillance of animal populations? What is the rationale for sharing this surveillance data with the human health sector?
+                </div>
+                <textarea class="answer-input" id="q2b" placeholder="Type your answer here..."></textarea>
+            </div>
+            
+            <div class="question">
+                <div class="q-header">
+                    <span style="font-size: 40px;">❓</span>
+                    <span class="q-number">Question 3</span>
+                </div>
+                <div class="q-text">
+                    Which of the steps in the surveillance cycle should be performed at the district level?
+                </div>
+                <input type="text" class="answer-input" id="q3" placeholder="Type your answer here...">
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="closeModal('modal1'); goToScene('scene2')">
+                    Submit & Continue →
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- SCENE 2: Data Analysis Room -->
+    <div class="scene data-bg" id="scene2">
+        <div class="overlay"></div>
+        
+        <div class="hud">
+            <div class="hud-location">📊 Data Analysis Center</div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 25%"></div>
+            </div>
+            <div class="hud-time">Monday, March 4 • 10:15 AM</div>
+        </div>
+        
+        <div class="character-area">
+            <div class="name-badge">
+                Dr. Sarah Kim
+                <span class="badge-title">Senior Surveillance Officer</span>
+            </div>
+            
+            <img src="https://raw.githubusercontent.com/d-j-gallagher/Avian-Influenza-Case-Study/main/dr-kim.png" class="person-photo" alt="Dr. Sarah Kim" onerror="this.style.display='none'; console.error('Photo not found');">
+            
+            <div class="dialogue">
+                <div class="dialogue-speaker">
+                    <img src="https://raw.githubusercontent.com/d-j-gallagher/Avian-Influenza-Case-Study/main/dr-kim.png" class="dialogue-avatar" alt="Dr. Kim avatar" onerror="this.style.display='none';">
+                    Dr. Sarah Kim
+                </div>
+                <div class="dialogue-text">
+                    "Great answers! Now let's look at the geographic distribution of influenza cases across District D. 
+                    I've pulled up our interactive map showing all 44 confirmed cases from January through November 2024. 
+                    This will help us identify which areas need targeted interventions..."
+                </div>
+                <button class="btn-continue" onclick="showModal('modal2')">View the Map →</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal 2: Map Analysis -->
+    <div class="modal" id="modal2">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('modal2')">×</button>
+            
+            <div class="doc-header">
+                <div class="doc-title">🗺️ Geographic Distribution Analysis</div>
+                <div class="doc-subtitle">Influenza Cases by Town, District D, January - November 2024</div>
+            </div>
+            
+            <div class="map-container">
+                <div class="map-legend">
+                    <strong style="display: block; margin-bottom: 10px; font-size: 15px; color: #2c3e50;">Map Legend</strong>
+                    <div style="margin: 6px 0; color: #555;">📍 Town Location</div>
+                    <div style="margin: 6px 0; color: #555;">⚫ Number of Cases</div>
+                </div>
+                
+                <!-- Town pins positioned on realistic map background -->
+                <div class="town-pin" style="left: 18%; top: 28%;">
+                    <div class="pin-marker">
+                        <div class="pin-label">Zot</div>
+                        <div class="pin-count">7</div>
+                    </div>
+                </div>
+                
+                <div class="town-pin" style="left: 48%; top: 20%;">
+                    <div class="pin-marker">
+                        <div class="pin-label">Delta</div>
+                        <div class="pin-count">5</div>
+                    </div>
+                </div>
+                
+                <div class="town-pin" style="left: 72%; top: 32%;">
+                    <div class="pin-marker">
+                        <div class="pin-label">Cerra</div>
+                        <div class="pin-count">7</div>
+                    </div>
+                </div>
+                
+                <div class="town-pin" style="left: 28%; top: 58%;">
+                    <div class="pin-marker">
+                        <div class="pin-label">Arlie</div>
+                        <div class="pin-count">6</div>
+                    </div>
+                </div>
+                
+                <div class="town-pin" style="left: 52%; top: 55%;">
+                    <div class="pin-marker">
+                        <div class="pin-label">Bravo</div>
+                        <div class="pin-count">6</div>
+                    </div>
+                </div>
+                
+                <div class="town-pin" style="left: 70%; top: 64%;">
+                    <div class="pin-marker">
+                        <div class="pin-label">Tango</div>
+                        <div class="pin-count">5</div>
+                    </div>
+                </div>
+                
+                <div class="town-pin" style="left: 35%; top: 78%;">
+                    <div class="pin-marker">
+                        <div class="pin-label">Uniform</div>
+                        <div class="pin-count">4</div>
+                    </div>
+                </div>
+                
+                <div class="town-pin" style="left: 62%; top: 82%;">
+                    <div class="pin-marker">
+                        <div class="pin-label">Echo</div>
+                        <div class="pin-count">4</div>
+                    </div>
+                </div>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Town Name</th>
+                        <th>Population</th>
+                        <th>Number of Cases</th>
+                        <th>Cases per 10,000</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Zot</strong></td>
+                        <td>8,000</td>
+                        <td>7</td>
+                        <td style="background: #ffe6e6; font-weight: bold;">8.8</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Delta</strong></td>
+                        <td>6,000</td>
+                        <td>5</td>
+                        <td style="background: #ffe6e6; font-weight: bold;">8.3</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Arlie</strong></td>
+                        <td>8,000</td>
+                        <td>6</td>
+                        <td>7.5</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cerra</strong></td>
+                        <td>18,000</td>
+                        <td>7</td>
+                        <td>3.9</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bravo</strong></td>
+                        <td>12,000</td>
+                        <td>6</td>
+                        <td>5.0</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tango</strong></td>
+                        <td>15,000</td>
+                        <td>5</td>
+                        <td>3.3</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Uniform</strong></td>
+                        <td>7,000</td>
+                        <td>4</td>
+                        <td>5.7</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Echo</strong></td>
+                        <td>11,000</td>
+                        <td>4</td>
+                        <td>3.6</td>
+                    </tr>
+                    <tr style="background: linear-gradient(135deg, #2c3e50, #34495e); color: white; font-weight: bold;">
+                        <td>DISTRICT TOTAL</td>
+                        <td>85,000</td>
+                        <td>44</td>
+                        <td>5.2</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="question">
+                <div class="q-header">
+                    <span style="font-size: 40px;">❓</span>
+                    <span class="q-number">Question 25</span>
+                </div>
+                <div class="q-text">
+                    <p style="margin-bottom: 15px;"><strong>a)</strong> Is influenza affecting all the towns in the district?</p>
+                    <textarea class="answer-input" id="q25a" placeholder="Type your answer here..." style="margin-bottom: 25px;"></textarea>
+                    
+                    <p style="margin-bottom: 15px;"><strong>b)</strong> Which town(s) is/are most affected? (Look at the cases per 10,000 rate)</p>
+                    <textarea class="answer-input" id="q25b" placeholder="Type your answer here..." style="margin-bottom: 25px;"></textarea>
+                    
+                    <p style="margin-bottom: 15px;"><strong>c)</strong> Which town(s) would you target for control measures?</p>
+                    <textarea class="answer-input" id="q25c" placeholder="Type your answer here..."></textarea>
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="closeModal('modal2'); goToScene('scene1')">← Back</button>
+                <button class="btn btn-primary" onclick="closeModal('modal2'); goToScene('scene3')">
+                    Continue Investigation →
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- SCENE 3: Demo End -->
+    <div class="scene meeting-bg" id="scene3">
+        <div class="overlay"></div>
+        
+        <div class="hud">
+            <div class="hud-location">✅ Investigation Demonstration</div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 30%"></div>
+            </div>
+            <div class="hud-time">Concept Demo</div>
+        </div>
+        
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(0,0,0,0.92); padding: 80px 60px; border-radius: 28px; border: 4px solid #3498db; box-shadow: 0 20px 60px rgba(0,0,0,0.8);">
+            <h2 style="font-size: 44px; margin-bottom: 28px;">🎉 Concept Demo Complete!</h2>
+            <p style="font-size: 21px; margin-bottom: 25px; line-height: 1.9;">
+                This demonstrates the realistic game approach with:<br><br>
+                ✓ Real photograph of Dr. Kim<br>
+                ✓ Realistic background images from real locations<br>
+                ✓ Interactive map with geographic data<br>
+                ✓ Reference materials (no answer spoilers)<br>
+                ✓ Professional game-like interface
+            </p>
+            <p style="font-size: 17px; margin-bottom: 40px; color: #bbb; line-height: 1.7;">
+                The full version would continue with hospital visits,<br>
+                patient case files, data cleaning exercises,<br>
+                epidemic curve analysis, and final presentation to the DCMO!
+            </p>
+            <button class="btn btn-primary" onclick="goToScene('sceneStart')" style="padding: 22px 50px; font-size: 20px;">
+                ← Return to Start
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        const answers = {};
+        
+        function goToScene(sceneId) {
+            document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+            document.getElementById(sceneId).classList.add('active');
+            saveAnswers();
+            window.scrollTo(0, 0);
+        }
+        
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            document.body.style.overflow = 'auto';
+            saveAnswers();
+        }
+        
+        function saveAnswers() {
+            document.querySelectorAll('.answer-input').forEach(input => {
+                if (input.value.trim()) {
+                    answers[input.id] = input.value.trim();
+                }
+            });
+        }
+        
+        function toggleRef() {
+            document.getElementById('refDrawer').classList.toggle('open');
+        }
+        
+        console.log("✅ Avian Influenza Investigation Simulation loaded!");
+        console.log("📸 Dr. Kim photo should load from: dr-kim.png");
+    </script>
+</body>
+</html>

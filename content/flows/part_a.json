@@ -1,0 +1,282 @@
+{
+  "id": "part_a",
+  "title": "Part A \u2014 Review of Influenza Data",
+  "start": "intro",
+  "nodes": {
+    "intro": {
+      "type": "read",
+      "title": "Part A \u2014 Review of Influenza Data",
+      "md": "content/parts/part_a/01_intro.md",
+      "next": "q1"
+    },
+    "q1": {
+      "type": "short_answer",
+      "title": "Question 1",
+      "prompt": "List the steps of the surveillance cycle.",
+      "answer_guidance": [
+        "Detect, Diagnose",
+        "Collect",
+        "Compile, Analyze",
+        "Interpret",
+        "Communicate",
+        "Take Action"
+      ],
+      "next": "q2"
+    },
+    "q2": {
+      "type": "short_answer",
+      "title": "Question 2",
+      "prompt": "a) Why conduct surveillance at the local/district level? b) Why conduct surveillance of animal populations (and share with human sector)?",
+      "answer_guidance_md": "content/parts/part_a/02_fact_sheet.md",
+      "next": "q3",
+      "note": "Use your own words; compare to instructor guidance."
+    },
+    "q3": {
+      "type": "short_answer",
+      "title": "Question 3",
+      "prompt": "Which of the steps in the surveillance cycle should be performed at the district level?",
+      "answer_guidance": [
+        "All of them."
+      ],
+      "next": "fact_sheet"
+    },
+    "fact_sheet": {
+      "type": "read",
+      "title": "Avian Influenza Fact Sheet",
+      "md": "content/parts/part_a/02_fact_sheet.md",
+      "next": "case_def"
+    },
+    "case_def": {
+      "type": "read",
+      "title": "Case definition (humans)",
+      "md": "content/parts/part_a/03_case_definition.md",
+      "next": "figures"
+    },
+    "figures": {
+      "type": "read",
+      "title": "Figures 1\u20132",
+      "md": "content/parts/part_a/04_figures.md",
+      "next": "q4"
+    },
+    "q4": {
+      "type": "short_answer",
+      "title": "Question 4",
+      "prompt": "According to Figure 1, which province has the highest overall incidence rate of human influenza between 2019 and 2024? According to Figure 2, which provinces may have had avian influenza outbreaks among poultry from 2019 to 2024?",
+      "answer_guidance": [
+        "Figure 1: Province B appears highest overall (2019 slightly lower than Province D).",
+        "Figure 2: Provinces B and E show peaks; Province A may have an outbreak in 2021."
+      ],
+      "next": "q5"
+    },
+    "q5": {
+      "type": "short_answer",
+      "title": "Question 5",
+      "prompt": "Province E had relatively low influenza incidence each year except 2023. What may have caused the increase?",
+      "answer_guidance": [
+        "Most likely an influenza outbreak in Province E in 2023."
+      ],
+      "next": "q6"
+    },
+    "q6": {
+      "type": "short_answer",
+      "title": "Question 6",
+      "prompt": "Comparing Figures 1 and 2, did outbreaks occur in poultry and humans during the same years? What does that suggest (or not suggest)?",
+      "answer_guidance": [
+        "Yes, Province E in 2023 shows both; likely coincidence; does not necessarily mean avian influenza in humans."
+      ],
+      "next": "table1_read"
+    },
+    "table1_read": {
+      "type": "table",
+      "title": "Table 1 (2024 human influenza incidence and mortality)",
+      "md": "content/parts/part_a/05_table_1.md",
+      "csv": "content/data/part_a_table_1.csv",
+      "next": "q7"
+    },
+    "q7": {
+      "type": "short_answer",
+      "title": "Question 7",
+      "prompt": "According to Table 1: Which province had the highest number of reported clinical cases? Which had the highest reported clinical incidence rate?",
+      "answer_guidance": [
+        "Highest # cases: Province D.",
+        "Highest incidence rate: Province B."
+      ],
+      "next": "q8"
+    },
+    "q8": {
+      "type": "short_answer",
+      "title": "Question 8",
+      "prompt": "Why are the provinces different in your answers to Question 7?",
+      "answer_guidance": [
+        "Incidence = new cases / population at risk.",
+        "Province D had more cases, but Province B likely has smaller population, yielding higher incidence."
+      ],
+      "next": "q9"
+    },
+    "q9": {
+      "type": "short_answer",
+      "title": "Question 9",
+      "prompt": "According to Table 1: Which province had the highest number of laboratory-confirmed cases? Which had the highest laboratory-confirmed incidence rate?",
+      "answer_guidance": [
+        "Province F for both."
+      ],
+      "next": "q10"
+    },
+    "q10": {
+      "type": "short_answer",
+      "title": "Question 10",
+      "prompt": "What is the value of reviewing the number of cases? What is the value of reviewing incidence rates?",
+      "answer_guidance": [
+        "# cases: essential for detecting outbreaks and planning (e.g., treatment doses).",
+        "Incidence: shows how quickly new cases occur; useful for comparisons over time/groups."
+      ],
+      "next": "q11"
+    },
+    "q11": {
+      "type": "numeric",
+      "title": "Question 11",
+      "prompt": "Calculate the influenza case-fatality rate for 2024 (as a percent). Use Table 1 totals.",
+      "expected": 0.15,
+      "tolerance": 0.02,
+      "unit": "%",
+      "next": "q12",
+      "guidance": "CFR = (deaths / cases) \u00d7 100. Using totals: (1,143 / 762,653) \u00d7 100 \u2248 0.15%."
+    },
+    "q12": {
+      "type": "short_answer",
+      "title": "Question 12",
+      "prompt": "Province D had more deaths than Province F. Why was the case-fatality rate in Province F higher than in Province D?",
+      "answer_guidance": [
+        "Because CFR is deaths / total cases. Province F had fewer cases relative to deaths, so a higher proportion of cases died."
+      ],
+      "next": "debrief"
+    },
+    "debrief": {
+      "type": "debrief",
+      "title": "Debrief",
+      "md": "content/parts/part_a/01_intro.md"
+    }
+  },
+  "assets_extracted_from_docx": [
+    {
+      "file": "content/assets/extracted_from_docx/image_01.png",
+      "content_type": "image/png",
+      "px": [
+        321,
+        204
+      ]
+    },
+    {
+      "file": "content/assets/extracted_from_docx/image_02.png",
+      "content_type": "image/png",
+      "px": [
+        12,
+        11
+      ]
+    },
+    {
+      "file": "content/assets/extracted_from_docx/image_03.png",
+      "content_type": "image/png",
+      "px": [
+        27,
+        121
+      ]
+    },
+    {
+      "file": "content/assets/extracted_from_docx/image_04.png",
+      "content_type": "image/png",
+      "px": [
+        1702,
+        834
+      ]
+    },
+    {
+      "file": "content/assets/extracted_from_docx/image_05.png",
+      "content_type": "image/png",
+      "px": [
+        1821,
+        869
+      ]
+    },
+    {
+      "file": "content/assets/extracted_from_docx/image_06.png",
+      "content_type": "image/png",
+      "px": [
+        6,
+        6
+      ]
+    },
+    {
+      "file": "content/assets/extracted_from_docx/image_07.png",
+      "content_type": "image/png",
+      "px": [
+        1724,
+        827
+      ]
+    },
+    {
+      "file": "content/assets/extracted_from_docx/image_08.png",
+      "content_type": "image/png",
+      "px": [
+        1702,
+        784
+      ]
+    },
+    {
+      "file": "content/assets/extracted_from_docx/image_09.png",
+      "content_type": "image/png",
+      "px": [
+        361,
+        361
+      ]
+    },
+    {
+      "file": "content/assets/extracted_from_docx/image_10.png",
+      "content_type": "image/png",
+      "px": [
+        11,
+        11
+      ]
+    },
+    {
+      "file": "content/assets/extracted_from_docx/image_11.png",
+      "content_type": "image/png",
+      "px": [
+        14,
+        186
+      ]
+    },
+    {
+      "file": "content/assets/extracted_from_docx/image_12.png",
+      "content_type": "image/png",
+      "px": [
+        480,
+        200
+      ]
+    },
+    {
+      "file": "content/assets/extracted_from_docx/image_13.png",
+      "content_type": "image/png",
+      "px": [
+        1865,
+        872
+      ]
+    },
+    {
+      "file": "content/assets/extracted_from_docx/image_14.png",
+      "content_type": "image/png",
+      "px": [
+        6,
+        6
+      ]
+    },
+    {
+      "file": "content/assets/extracted_from_docx/image_15.png",
+      "content_type": "image/png",
+      "px": [
+        1120,
+        495
+      ]
+    }
+  ]
+}
