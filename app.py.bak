@@ -1,0 +1,355 @@
+import json
+import re
+from pathlib import Path
+import streamlit as st
+
+BASE_DIR = Path(__file__).parent
+MANIFEST_PATH = BASE_DIR / "content" / "manifest.json"
+
+
+# ----------------------------
+# Helpers: loading + sections
+# ----------------------------
+@st.cache_data(show_spinner=False)
+def load_json(rel_path: str) -> dict:
+    p = BASE_DIR / rel_path
+    return json.loads(p.read_text(encoding="utf-8"))
+
+
+@st.cache_data(show_spinner=False)
+def read_text(rel_path: str) -> str:
+    p = BASE_DIR / rel_path
+    if not p.exists():
+        return f"_Missing file: {p}_"
+    return p.read_text(encoding="utf-8")
+
+
+def extract_md_section(md_text: str, heading: str) -> str:
+    """
+    Extract content under a heading like:
+      ## Scenario
+    until the next ## heading.
+    """
+    pattern = re.compile(rf"^##\s+{re.escape(heading)}\s*$", re.MULTILINE)
+    m = pattern.search(md_text)
+    if not m:
+        return f"_Section not found: {heading}_"
+
+    start = m.end()
+    stop_pat = re.compile(r"^##\s+.+$", re.MULTILINE)
+    m2 = stop_pat.search(md_text, start)
+    end = m2.start() if m2 else len(md_text)
+    return md_text[start:end].strip()
+
+
+def clear_caches():
+    st.cache_data.clear()
+    # keep answers; only reload content
+    st.toast("Content cache cleared.", icon="✅")
+
+
+# ----------------------------
+# State model
+# ----------------------------
+def ss_key(*parts) -> str:
+    return "::".join(parts)
+
+
+def init_global_state(manifest: dict):
+    if "selected_part_id" not in st.session_state:
+        st.session_state.selected_part_id = manifest["parts"][0]["id"]
+
+    if "nav_mode" not in st.session_state:
+        st.session_state.nav_mode = "guided"  # guided | jump
+
+    if "instructor_unlocked" not in st.session_state:
+        st.session_state.instructor_unlocked = False
+
+    if "answers" not in st.session_state:
+        # answers[part_id][node_id] = {"text": "...", "submitted": bool}
+        st.session_state.answers = {}
+
+    if "flow_state" not in st.session_state:
+        # flow_state[part_id] = {"node_id": "...", "history": [...]}
+        st.session_state.flow_state = {}
+
+
+def get_part(manifest: dict, part_id: str) -> dict:
+    for p in manifest["parts"]:
+        if p["id"] == part_id:
+            return p
+    return manifest["parts"][0]
+
+
+def load_flow_for_part(part: dict) -> dict:
+    return load_json(part["flow"])
+
+
+def ensure_part_state(part_id: str, flow: dict):
+    if part_id not in st.session_state.flow_state:
+        st.session_state.flow_state[part_id] = {
+            "node_id": flow["start"],
+            "history": []
+        }
+    if part_id not in st.session_state.answers:
+        st.session_state.answers[part_id] = {}
+
+
+def current_node_id(part_id: str) -> str:
+    return st.session_state.flow_state[part_id]["node_id"]
+
+
+def goto(part_id: str, next_id: str):
+    st.session_state.flow_state[part_id]["history"].append(current_node_id(part_id))
+    st.session_state.flow_state[part_id]["node_id"] = next_id
+    st.rerun()
+
+
+def go_back(part_id: str):
+    hist = st.session_state.flow_state[part_id]["history"]
+    if hist:
+        st.session_state.flow_state[part_id]["node_id"] = hist.pop()
+        st.rerun()
+
+
+def set_submitted(part_id: str, node_id: str, submitted: bool):
+    entry = st.session_state.answers[part_id].get(node_id, {"text": "", "submitted": False})
+    entry["submitted"] = submitted
+    st.session_state.answers[part_id][node_id] = entry
+
+
+def set_answer_text(part_id: str, node_id: str, text: str):
+    entry = st.session_state.answers[part_id].get(node_id, {"text": "", "submitted": False})
+    entry["text"] = text
+    st.session_state.answers[part_id][node_id] = entry
+
+
+# ----------------------------
+# UI: Sidebar
+# ----------------------------
+def sidebar(manifest: dict, part: dict, flow: dict):
+    st.sidebar.header("Instructor Mode")
+    if st.session_state.instructor_unlocked:
+        st.sidebar.success("Unlocked • Instructor notes visible")
+        if st.sidebar.button("Lock instructor mode"):
+            st.session_state.instructor_unlocked = False
+            st.rerun()
+    else:
+        st.sidebar.info("Locked • Instructor notes are hidden")
+        code = st.sidebar.text_input("Enter instructor unlock code", type="password")
+        if st.sidebar.button("Unlock"):
+            # OPTIONAL: set your own unlock code in Streamlit Secrets or env var later.
+            # For now: any non-empty code unlocks (you can tighten this later).
+            if code.strip():
+                st.session_state.instructor_unlocked = True
+                st.rerun()
+            else:
+                st.sidebar.warning("Enter a code (any text for now).")
+
+    st.sidebar.divider()
+    st.sidebar.header("Navigation")
+    st.session_state.nav_mode = st.sidebar.radio(
+        "Mode",
+        ["guided", "jump"],
+        format_func=lambda v: "Guided (Next/Back)" if v == "guided" else "Jump to Section",
+        index=0 if st.session_state.nav_mode == "guided" else 1
+    )
+
+    st.sidebar.checkbox("Include appendices in guided flow", value=False, disabled=True)
+    st.sidebar.checkbox("Show all questions in this part", value=False, disabled=True)
+
+    st.sidebar.divider()
+    st.sidebar.header("Sections")
+
+    # Parts list
+    for p in manifest["parts"]:
+        label = p["title"]
+        if p["id"] == part["id"]:
+            label = f"📘 {label}"
+        if st.sidebar.button(label, key=ss_key("partbtn", p["id"])):
+            st.session_state.selected_part_id = p["id"]
+            st.rerun()
+
+    st.sidebar.divider()
+    if st.sidebar.button("Reload content (clear cache)"):
+        clear_caches()
+        st.rerun()
+
+
+# ----------------------------
+# Main: Learn & Respond
+# ----------------------------
+def progress_summary(part_id: str, flow: dict) -> tuple[int, int]:
+    # count question nodes
+    question_nodes = [nid for nid, n in flow["nodes"].items() if n.get("type") == "question_section"]
+    submitted = 0
+    for nid in question_nodes:
+        if st.session_state.answers.get(part_id, {}).get(nid, {}).get("submitted", False):
+            submitted += 1
+    return submitted, len(question_nodes)
+
+
+def render_node(part_id: str, flow: dict, node_id: str):
+    nodes = flow["nodes"]
+    node = nodes[node_id]
+    node_type = node.get("type", "")
+
+    st.subheader(node.get("title", node_id))
+
+    # Load markdown if needed
+    md_text = ""
+    if node.get("md"):
+        md_text = read_text(node["md"])
+
+    if node_type == "read_section":
+        content = extract_md_section(md_text, node["section"])
+        st.markdown(content)
+
+        cols = st.columns([1, 1])
+        cols[0].button("⬅ Back", on_click=go_back, args=(part_id,), disabled=not bool(st.session_state.flow_state[part_id]["history"]))
+        if node.get("next"):
+            cols[1].button("Next ➜", on_click=goto, args=(part_id, node["next"]))
+
+    elif node_type == "question_section":
+        content = extract_md_section(md_text, node["section"])
+        st.markdown(content)
+
+        existing = st.session_state.answers[part_id].get(node_id, {"text": "", "submitted": False})
+        text = st.text_area("Your response", value=existing.get("text", ""), height=180)
+        set_answer_text(part_id, node_id, text)
+
+        cols = st.columns([1, 1, 1])
+        cols[0].button("⬅ Back", on_click=go_back, args=(part_id,), disabled=not bool(st.session_state.flow_state[part_id]["history"]))
+
+        if cols[1].button("Submit"):
+            if text.strip():
+                set_submitted(part_id, node_id, True)
+                st.success("Submitted.")
+            else:
+                st.warning("Type a response before submitting.")
+
+        if node.get("next"):
+            cols[2].button("Continue ➜", on_click=goto, args=(part_id, node["next"]))
+
+    elif node_type == "review_answers":
+        required = node.get("required_submissions", [])
+        missing = [qid for qid in required if not st.session_state.answers[part_id].get(qid, {}).get("submitted", False)]
+
+        if missing:
+            st.warning("Review Answers is locked until you submit:")
+            for qid in missing:
+                st.write(f"- {flow['nodes'].get(qid, {}).get('title', qid)}")
+            st.button("⬅ Back", on_click=go_back, args=(part_id,), disabled=not bool(st.session_state.flow_state[part_id]["history"]))
+            return
+
+        st.success("Unlocked! Review your answers below.")
+        # show answers only (no key unless later added)
+        for qid in required:
+            qnode = flow["nodes"].get(qid, {})
+            st.markdown(f"### {qnode.get('title', qid)}")
+            st.write(st.session_state.answers[part_id].get(qid, {}).get("text", ""))
+            st.markdown("---")
+
+        cols = st.columns([1, 1])
+        cols[0].button("⬅ Back", on_click=go_back, args=(part_id,), disabled=not bool(st.session_state.flow_state[part_id]["history"]))
+        if node.get("next"):
+            cols[1].button("Continue ➜", on_click=goto, args=(part_id, node["next"]))
+
+    elif node_type == "debrief":
+        st.write("Completed this part.")
+        st.markdown("### Saved answers")
+        st.json(st.session_state.answers.get(part_id, {}))
+
+        cols = st.columns([1, 1, 1])
+        cols[0].button("⬅ Back", on_click=go_back, args=(part_id,), disabled=not bool(st.session_state.flow_state[part_id]["history"]))
+        if cols[1].button("Restart part"):
+            st.session_state.flow_state[part_id] = {"node_id": flow["start"], "history": []}
+            st.rerun()
+        if cols[2].button("Clear my answers for this part"):
+            st.session_state.answers[part_id] = {}
+            st.rerun()
+
+    else:
+        st.error(f"Unsupported node type: {node_type}")
+
+
+def learn_and_respond(part_id: str, flow: dict):
+    submitted, total = progress_summary(part_id, flow)
+    st.caption(f"Progress: {submitted}/{total} questions submitted")
+
+    node_id = current_node_id(part_id)
+    render_node(part_id, flow, node_id)
+
+
+# ----------------------------
+# Main: Review Answers tab
+# ----------------------------
+def review_answers_tab(part_id: str, flow: dict):
+    st.header("Review Answers")
+    nodes = flow["nodes"]
+
+    # List all question nodes in this part
+    q_nodes = [(nid, n) for nid, n in nodes.items() if n.get("type") == "question_section"]
+    if not q_nodes:
+        st.info("No questions found in this part yet.")
+        return
+
+    for nid, n in q_nodes:
+        title = n.get("title", nid)
+        entry = st.session_state.answers.get(part_id, {}).get(nid, {"text": "", "submitted": False})
+        status = "✅ submitted" if entry.get("submitted") else "⏳ pending"
+        preview = entry.get("text", "").strip()
+        preview = preview if preview else "No response yet"
+
+        with st.container(border=True):
+            cols = st.columns([2, 4, 1])
+            cols[0].write(f"**{title}**")
+            cols[1].write(preview[:180] + ("…" if len(preview) > 180 else ""))
+            if cols[2].button("Go", key=ss_key("go", part_id, nid)):
+                # set flow node and switch user to learn/respond mentally
+                st.session_state.flow_state[part_id]["node_id"] = nid
+                st.rerun()
+            st.caption(status)
+
+
+# ----------------------------
+# Appendices placeholder
+# ----------------------------
+def appendices_tab(manifest: dict):
+    st.header("Appendices")
+    if not manifest.get("appendices"):
+        st.info("No appendices added yet. We’ll hook these up when we extract annexes/figures/tables.")
+        return
+    for app in manifest["appendices"]:
+        st.write(app)
+
+
+def main():
+    st.set_page_config(page_title="Avian Influenza Case Study", layout="wide")
+
+    manifest = load_json("content/manifest.json")
+    init_global_state(manifest)
+
+    part = get_part(manifest, st.session_state.selected_part_id)
+    flow = load_flow_for_part(part)
+    ensure_part_state(part["id"], flow)
+
+    sidebar(manifest, part, flow)
+
+    st.title(manifest.get("title", "Case Study"))
+    st.markdown(f"### {flow.get('title', part['title'])}")
+
+    tab1, tab2, tab3 = st.tabs(["Learn & Respond", "Review Answers", "Appendices"])
+
+    with tab1:
+        learn_and_respond(part["id"], flow)
+
+    with tab2:
+        review_answers_tab(part["id"], flow)
+
+    with tab3:
+        appendices_tab(manifest)
+
+
+if __name__ == "__main__":
+    main()

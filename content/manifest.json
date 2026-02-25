@@ -1,0 +1,16 @@
+{
+  "title": "Avian Influenza Surveillance in Country Z",
+  "parts": [
+    {
+      "id": "part_a",
+      "title": "Part A",
+      "flow": "content/flows/part_a.json"
+    },
+    {
+      "id": "part_b",
+      "title": "Part B",
+      "flow": "content/flows/part_b.json"
+    }
+  ],
+  "appendices": []
+}

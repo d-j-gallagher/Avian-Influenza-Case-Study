@@ -1,0 +1,32 @@
+{
+  "id": "part_b",
+  "title": "Part B — Influenza Surveillance",
+  "start": "scenario",
+  "nodes": {
+    "scenario": {
+      "type": "read_section",
+      "title": "Scenario",
+      "md": "content/parts/part_b/01_part_b.md",
+      "section": "Scenario",
+      "next": "q13"
+    },
+    "q13": {
+      "type": "question_section",
+      "title": "Question 13",
+      "md": "content/parts/part_b/01_part_b.md",
+      "section": "Question 13",
+      "next": "q14"
+    },
+    "q14": {
+      "type": "question_section",
+      "title": "Question 14",
+      "md": "content/parts/part_b/01_part_b.md",
+      "section": "Question 14",
+      "next": "debrief"
+    },
+    "debrief": {
+      "type": "debrief",
+      "title": "Debrief"
+    }
+  }
+}
